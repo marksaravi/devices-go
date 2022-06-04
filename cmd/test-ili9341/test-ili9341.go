@@ -33,56 +33,27 @@ func main() {
 	var err error
 	display, err = ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
 	checkFatalErr(err)
-	// testAllScreen(display)
-	// time.Sleep(1000 * time.Millisecond)
-	// testLines(display)
-	// time.Sleep(1000 * time.Millisecond)
-	// testColors(display)
-	// time.Sleep(1000 * time.Millisecond)
-	// color := display.RED
-	// for color < display.WHITE {
-	// 	fmt.Println(color)
-	// 	color = testColorsPallet(display, color)
-	// 	time.Sleep(1000 * time.Millisecond)
-	// }
-	// time.Sleep(1000 * time.Millisecond)
+	time.Sleep(1000 * time.Millisecond)
+	testLines(display)
+	time.Sleep(1000 * time.Millisecond)
+	testColors(display)
+	time.Sleep(1000 * time.Millisecond)
 	testFonts(display)
 	time.Sleep(1000 * time.Millisecond)
 }
 
-// func testAllScreen(display display.RGB565Display) {
-// 	display.Clear(display.WHITE)
-
-// 	for x := 0; x < display.NumOfXSegments(); x++ {
-// 		for y := 0; y < display.NumOfYSegments(); y++ {
-// 			state := "dir"
-// 			color := display.GREEN
-// 			if x == 0 && y == 0 {
-// 				state = "first"
-// 				color = display.BLUE
-// 			}
-// 			if x == display.NumOfXSegments()-1 && y == display.NumOfYSegments()-1 {
-// 				state = "last"
-// 				color = display.RED
-// 			}
-// 			display.ShowSegment(x, y, color, state)
-// 		}
-// 	}
-// 	display.Update()
-// }
-
-// func testLines(display display.RGB565Display) {
-// 	display.Clear(display.BLACK)
-// 	xmax := float64(display.ScreenWidth() - 1)
-// 	ymax := float64(display.ScreenHeight() - 1)
-// 	display.Line(0, 0, xmax, ymax, display.GREEN)
-// 	display.Line(0, ymax, xmax, 0, display.GREEN)
-// 	display.Line(0, 0, xmax, 0, display.YELLOW)
-// 	display.Line(xmax, 0, xmax, ymax, display.YELLOW)
-// 	display.Line(xmax, ymax, 0, ymax, display.YELLOW)
-// 	display.Line(0, ymax, 0, 0, display.YELLOW)
-// 	display.Update()
-// }
+func testLines(display display.RGB565Display) {
+	display.Clear(rgb565.BLACK)
+	xmax := float64(display.ScreenWidth() - 1)
+	ymax := float64(display.ScreenHeight() - 1)
+	display.Line(0, 0, xmax, ymax, rgb565.GREEN)
+	display.Line(0, ymax, xmax, 0, rgb565.GREEN)
+	display.Line(0, 0, xmax, 0, rgb565.YELLOW)
+	display.Line(xmax, 0, xmax, ymax, rgb565.YELLOW)
+	display.Line(xmax, ymax, 0, ymax, rgb565.YELLOW)
+	display.Line(0, ymax, 0, 0, rgb565.YELLOW)
+	display.Update()
+}
 
 func testFonts(display display.RGB565Display) {
 	display.Clear(rgb565.WHITE)
@@ -91,36 +62,26 @@ func testFonts(display display.RGB565Display) {
 	display.SetFontColor(rgb565.BLUE)
 	display.SetFont(fonts.Org_01)
 	display.SetLineHeight(40)
-	// display.SetFont(fonts.Sans24)
-	// display.Write("Hello Mark!")
-	// display.SetFont(fonts.Font24)
-	// display.Write("Hello Mark!")
-	// display.SetFontColor(display.YELLOW)
-	// display.SetFontBackgroundColor(display.BLACK)
-	// for c := ' '; c <= '~'; c++ {
-	// 	display.WriteChar(byte(c))
-	// }
-
+	display.SetFont(fonts.FreeSans24pt7b)
+	display.Write("Hello Mark!")
+	display.SetFont(fonts.FreeMono18pt7b)
 	display.Write("Hello Mark!\n")
 	display.Write("0123456789")
-	// display.SetFont(fonts.Font24)
-	// display.Write("Hello Mark!")
-	fmt.Println()
 	display.Update()
 }
 
-// func testColors(display display.RGB565Display) {
-// 	display.Clear(display.BLACK)
-// 	colors := []display.RGB565{display.WHITE, display.YELLOW, display.GREEN, display.BLUE, display.RED}
-// 	xmax := float64(display.ScreenWidth() - 1)
-// 	const height = 20
-// 	const margin = 10
-// 	for color := 0; color < len(colors); color++ {
-// 		ys := float64(color * (height + margin))
-// 		display.FillRectangle(0, ys, xmax, ys+height, colors[color])
-// 	}
-// 	display.Update()
-// }
+func testColors(display display.RGB565Display) {
+	display.Clear(rgb565.BLACK)
+	colors := []rgb565.RGB565{rgb565.WHITE, rgb565.YELLOW, rgb565.GREEN, rgb565.BLUE, rgb565.RED}
+	xmax := float64(display.ScreenWidth() - 1)
+	const height = 20
+	const margin = 10
+	for color := 0; color < len(colors); color++ {
+		ys := float64(color * (height + margin))
+		display.FillRectangle(0, ys, xmax, ys+height, colors[color])
+	}
+	display.Update()
+}
 
 // func testColorsPallet(display display.RGB565Display, color display.RGB565) display.RGB565 {
 // 	display.Clear(display.BLACK)
