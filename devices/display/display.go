@@ -26,6 +26,7 @@ type GenericDisplay interface {
 	Pixel(x, y float64)
 	Line(x1, y1, x2, y2 float64)
 	Rectangle(x1, y1, x2, y2 float64)
+	Arc(x, y, radius, startAngle, endAngle, width float64)
 	Circle(x, y, radius float64)
 	FillRectangle(x1, y1, x2, y2 float64)
 	FillCircle(x, y, radius float64)

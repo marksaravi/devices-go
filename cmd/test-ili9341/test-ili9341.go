@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/marksaravi/devices-go/colors/rgb565"
@@ -40,8 +41,8 @@ func main() {
 	// time.Sleep(1000 * time.Millisecond)
 	testFonts(display)
 	time.Sleep(1000 * time.Millisecond)
-	// testShapes(display)
-	// time.Sleep(1000 * time.Millisecond)
+	testShapes(display)
+	time.Sleep(1000 * time.Millisecond)
 }
 
 func testLines(display display.RGB565Display) {
@@ -97,8 +98,9 @@ func testShapes(display display.RGB565Display) {
 	display.Circle(50, 50, 30)
 	display.SetColor(rgb565.GREEN)
 	display.FillCircle(100, 100, 30)
-	display.SetColor(rgb565.RED)
-	display.FillRectangle(50, 150, 220, 180)
+	display.Arc(120, 120, 118, -math.Pi/4, math.Pi/4, 40)
+	// display.SetColor(rgb565.RED)
+	// display.FillRectangle(50, 150, 220, 180)
 	display.Update()
 }
 
