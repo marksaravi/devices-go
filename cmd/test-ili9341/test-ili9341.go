@@ -40,6 +40,8 @@ func main() {
 	time.Sleep(1000 * time.Millisecond)
 	testFonts(display)
 	time.Sleep(1000 * time.Millisecond)
+	testShapes(display)
+	time.Sleep(1000 * time.Millisecond)
 }
 
 func testLines(display display.RGB565Display) {
@@ -83,20 +85,13 @@ func testColors(display display.RGB565Display) {
 	display.Update()
 }
 
-// func testColorsPallet(display display.RGB565Display, color display.RGB565) display.RGB565 {
-// 	display.Clear(display.BLACK)
-// 	height := 3
-// 	xmax := float64(display.ScreenWidth() - 1)
-// 	n := display.ScreenHeight() / height
-// 	c := color
-// 	for i := uint16(0); i < uint16(n); i++ {
-// 		y := float64(i * uint16(height))
-// 		display.FillRectangle(0, y, xmax, y+float64(height), c)
-// 		c += 1
-// 	}
-// 	display.Update()
-// 	return c
-// }
+func testShapes(display display.RGB565Display) {
+	display.Clear(rgb565.BLUE)
+	display.Circle(50, 50, 30, rgb565.YELLOW)
+	display.FillCircle(100, 100, 30, rgb565.GREEN)
+	display.FillRectangle(50, 150, 220, 180, rgb565.RED)
+	display.Update()
+}
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
 	var pin gpio.PinOut = gpioreg.ByName(gpioPinNum)
