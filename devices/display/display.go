@@ -1,4 +1,4 @@
-package tftlcd
+package display
 
 import "github.com/marksaravi/fonts-go/fonts"
 
@@ -23,7 +23,7 @@ const (
 
 const ()
 
-type TFTLCD interface {
+type Display interface {
 	Update()
 	ScreenWidth() int
 	ScreenHeight() int
