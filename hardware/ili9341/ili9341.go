@@ -249,10 +249,15 @@ func (dev *device) Pixel(x, y float64) {
 }
 
 func (dev *device) Circle(x, y, radius float64) {
-	dangle := math.Pi / 180
+	dev.Arc(x, y, radius, 0, 2*math.Pi, 1)
+}
 
-	for angle := float64(0); angle < math.Pi*2; angle += dangle {
-		dev.Pixel(x+radius*math.Cos(angle), y+radius*math.Sin(angle))
+func (dev *device) Arc(x, y, radius, startAngle, endAngle, width float64) {
+	for r := radius; r >= radius-width; r -= 1 {
+		dangle := math.Pi / 600
+		for angle := float64(startAngle); angle <= endAngle; angle += dangle {
+			dev.Pixel(x+r*math.Cos(angle), y+r*math.Sin(angle))
+		}
 	}
 }
 
