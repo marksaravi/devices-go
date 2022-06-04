@@ -34,6 +34,7 @@ type GenericDisplay interface {
 	MoveCursor(x, y int)
 	SetFont(font fonts.BitmapFont)
 	SetLineHeight(height int)
+	SetLetterSpacing(spacing int)
 	WriteChar(char byte) error
 	Write(text string)
 }

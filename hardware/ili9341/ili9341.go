@@ -413,6 +413,10 @@ func (dev *device) SetLineHeight(height int) {
 	dev.lineHeight = height
 }
 
+func (dev *device) SetLetterSpacing(spacing int) {
+	dev.letterSpacing = spacing
+}
+
 func (dev *device) WriteChar(char byte) error {
 	if char == '\n' {
 		dev.nextLine()
@@ -444,7 +448,7 @@ func (dev *device) drawBitmapChar(char byte) error {
 			dev.pixel(x, y, color)
 		}
 	}
-	xforward := glyph.XAdvance
+	xforward := glyph.XAdvance + dev.letterSpacing
 	dev.cursorX += xforward
 	if dev.cursorX+xforward >= dev.ScreenWidth() {
 		dev.nextLine()
