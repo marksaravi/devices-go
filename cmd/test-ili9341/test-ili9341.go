@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/marksaravi/devices-go/v1/colors/rgb565"
-	"github.com/marksaravi/devices-go/v1/devices/display"
-	"github.com/marksaravi/devices-go/v1/hardware/ili9341"
+	"github.com/marksaravi/devices-go/colors/rgb565"
+	"github.com/marksaravi/devices-go/devices/display"
+	"github.com/marksaravi/devices-go/hardware/ili9341"
 	"github.com/marksaravi/fonts-go/fonts"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"

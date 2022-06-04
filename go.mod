@@ -1,4 +1,4 @@
-module github.com/marksaravi/devices-go/v1
+module github.com/marksaravi/devices-go
 
 go 1.17
 

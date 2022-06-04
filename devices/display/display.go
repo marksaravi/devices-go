@@ -1,7 +1,7 @@
 package display
 
 import (
-	"github.com/marksaravi/devices-go/v1/colors/rgb565"
+	"github.com/marksaravi/devices-go/colors/rgb565"
 	"github.com/marksaravi/fonts-go/fonts"
 )
 
