@@ -5,15 +5,16 @@ import (
 	"log"
 	"time"
 
+	"github.com/marksaravi/devices-go/v1/colors/rgb565"
 	"github.com/marksaravi/devices-go/v1/devices/display"
-	"github.com/marksaravi/drone-go/hardware"
-	"github.com/marksaravi/drone-go/hardware/ili9341"
+	"github.com/marksaravi/devices-go/v1/hardware/ili9341"
 	"github.com/marksaravi/fonts-go/fonts"
-	"periph.io/x/periph/conn/gpio"
-	"periph.io/x/periph/conn/gpio/gpioreg"
-	"periph.io/x/periph/conn/physic"
-	"periph.io/x/periph/conn/spi"
-	"periph.io/x/periph/host/sysfs"
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/conn/v3/physic"
+	"periph.io/x/conn/v3/spi"
+	"periph.io/x/host/v3"
+	"periph.io/x/host/v3/sysfs"
 )
 
 func checkFatalErr(err error) {
@@ -24,11 +25,14 @@ func checkFatalErr(err error) {
 
 func main() {
 	fmt.Println("Testing ILI9341...")
-	hardware.InitHost()
+	host.Init()
 	spiConn := createSPIConnection(0, 0)
-	dataCommandSelect := createGpioOutPin("GPIO5")
-	reset := createGpioOutPin("GPIO13")
-	var display display.Display = ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
+	dataCommandSelect := createGpioOutPin("GPIO22")
+	reset := createGpioOutPin("GPIO23")
+	var display display.RGB565Display
+	var err error
+	display, err = ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
+	checkFatalErr(err)
 	// testAllScreen(display)
 	// time.Sleep(1000 * time.Millisecond)
 	// testLines(display)
@@ -46,45 +50,45 @@ func main() {
 	time.Sleep(1000 * time.Millisecond)
 }
 
-func testAllScreen(display display.Display) {
-	display.Clear(display.WHITE)
+// func testAllScreen(display display.RGB565Display) {
+// 	display.Clear(display.WHITE)
 
-	for x := 0; x < display.NumOfXSegments(); x++ {
-		for y := 0; y < display.NumOfYSegments(); y++ {
-			state := "dir"
-			color := display.GREEN
-			if x == 0 && y == 0 {
-				state = "first"
-				color = display.BLUE
-			}
-			if x == display.NumOfXSegments()-1 && y == display.NumOfYSegments()-1 {
-				state = "last"
-				color = display.RED
-			}
-			display.ShowSegment(x, y, color, state)
-		}
-	}
-	display.Update()
-}
+// 	for x := 0; x < display.NumOfXSegments(); x++ {
+// 		for y := 0; y < display.NumOfYSegments(); y++ {
+// 			state := "dir"
+// 			color := display.GREEN
+// 			if x == 0 && y == 0 {
+// 				state = "first"
+// 				color = display.BLUE
+// 			}
+// 			if x == display.NumOfXSegments()-1 && y == display.NumOfYSegments()-1 {
+// 				state = "last"
+// 				color = display.RED
+// 			}
+// 			display.ShowSegment(x, y, color, state)
+// 		}
+// 	}
+// 	display.Update()
+// }
 
-func testLines(display display.Display) {
-	display.Clear(display.BLACK)
-	xmax := float64(display.ScreenWidth() - 1)
-	ymax := float64(display.ScreenHeight() - 1)
-	display.Line(0, 0, xmax, ymax, display.GREEN)
-	display.Line(0, ymax, xmax, 0, display.GREEN)
-	display.Line(0, 0, xmax, 0, display.YELLOW)
-	display.Line(xmax, 0, xmax, ymax, display.YELLOW)
-	display.Line(xmax, ymax, 0, ymax, display.YELLOW)
-	display.Line(0, ymax, 0, 0, display.YELLOW)
-	display.Update()
-}
+// func testLines(display display.RGB565Display) {
+// 	display.Clear(display.BLACK)
+// 	xmax := float64(display.ScreenWidth() - 1)
+// 	ymax := float64(display.ScreenHeight() - 1)
+// 	display.Line(0, 0, xmax, ymax, display.GREEN)
+// 	display.Line(0, ymax, xmax, 0, display.GREEN)
+// 	display.Line(0, 0, xmax, 0, display.YELLOW)
+// 	display.Line(xmax, 0, xmax, ymax, display.YELLOW)
+// 	display.Line(xmax, ymax, 0, ymax, display.YELLOW)
+// 	display.Line(0, ymax, 0, 0, display.YELLOW)
+// 	display.Update()
+// }
 
-func testFonts(display display.Display) {
-	display.Clear(display.WHITE)
+func testFonts(display display.RGB565Display) {
+	display.Clear(rgb565.WHITE)
 	display.MoveCursor(5, 5)
-	display.SetFontBackgroundColor(display.WHITE)
-	display.SetFontColor(display.BLUE)
+	display.SetFontBackgroundColor(rgb565.WHITE)
+	display.SetFontColor(rgb565.BLUE)
 	display.SetFont(fonts.Org_01)
 	display.SetLineHeight(40)
 	// display.SetFont(fonts.Sans24)
@@ -105,33 +109,33 @@ func testFonts(display display.Display) {
 	display.Update()
 }
 
-func testColors(display display.Display) {
-	display.Clear(display.BLACK)
-	colors := []display.RGB565{display.WHITE, display.YELLOW, display.GREEN, display.BLUE, display.RED}
-	xmax := float64(display.ScreenWidth() - 1)
-	const height = 20
-	const margin = 10
-	for color := 0; color < len(colors); color++ {
-		ys := float64(color * (height + margin))
-		display.FillRectangle(0, ys, xmax, ys+height, colors[color])
-	}
-	display.Update()
-}
+// func testColors(display display.RGB565Display) {
+// 	display.Clear(display.BLACK)
+// 	colors := []display.RGB565{display.WHITE, display.YELLOW, display.GREEN, display.BLUE, display.RED}
+// 	xmax := float64(display.ScreenWidth() - 1)
+// 	const height = 20
+// 	const margin = 10
+// 	for color := 0; color < len(colors); color++ {
+// 		ys := float64(color * (height + margin))
+// 		display.FillRectangle(0, ys, xmax, ys+height, colors[color])
+// 	}
+// 	display.Update()
+// }
 
-func testColorsPallet(display display.Display, color display.RGB565) display.RGB565 {
-	display.Clear(display.BLACK)
-	height := 3
-	xmax := float64(display.ScreenWidth() - 1)
-	n := display.ScreenHeight() / height
-	c := color
-	for i := uint16(0); i < uint16(n); i++ {
-		y := float64(i * uint16(height))
-		display.FillRectangle(0, y, xmax, y+float64(height), c)
-		c += 1
-	}
-	display.Update()
-	return c
-}
+// func testColorsPallet(display display.RGB565Display, color display.RGB565) display.RGB565 {
+// 	display.Clear(display.BLACK)
+// 	height := 3
+// 	xmax := float64(display.ScreenWidth() - 1)
+// 	n := display.ScreenHeight() / height
+// 	c := color
+// 	for i := uint16(0); i < uint16(n); i++ {
+// 		y := float64(i * uint16(height))
+// 		display.FillRectangle(0, y, xmax, y+float64(height), c)
+// 		c += 1
+// 	}
+// 	display.Update()
+// 	return c
+// }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
 	var pin gpio.PinOut = gpioreg.ByName(gpioPinNum)

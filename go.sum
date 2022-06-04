@@ -3,3 +3,6 @@ github.com/marksaravi/fonts-go v0.1.0 h1:EjR3Qxjs4yA24dLrmk4pe3CXiJfGVvUaCwsgPjG
 github.com/marksaravi/fonts-go v0.1.0/go.mod h1:G20Ju8c7mDqQFqjhHwP2yjDM4Upc0BYIEh00NSWDGHY=
 periph.io/x/conn/v3 v3.6.10 h1:gwU4ssmZkq1D/uz8hU91i/COo2c9DrRaS4PJZBbCd+c=
 periph.io/x/conn/v3 v3.6.10/go.mod h1:UqWNaPMosWmNCwtufoTSTTYhB2wXWsMRAJyo1PlxO4Q=
+periph.io/x/d2xx v0.0.4/go.mod h1:38Euaaj+s6l0faIRHh32a+PrjXvxFTFkPBEQI0TKg34=
+periph.io/x/host/v3 v3.7.2 h1:rCAUxkzy2xrzh18HP2AoVwTL/fEKqmcJ1icsZQGM58Q=
+periph.io/x/host/v3 v3.7.2/go.mod h1:nHMlzkPwmnHyP9Tn0I8FV+e0N3K7TjFXLZkIWzAicog=
