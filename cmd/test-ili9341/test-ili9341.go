@@ -33,35 +33,38 @@ func main() {
 	var err error
 	display, err = ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
 	checkFatalErr(err)
-	time.Sleep(1000 * time.Millisecond)
-	testLines(display)
-	time.Sleep(1000 * time.Millisecond)
-	testColors(display)
-	time.Sleep(1000 * time.Millisecond)
+	// time.Sleep(1000 * time.Millisecond)
+	// testLines(display)
+	// time.Sleep(1000 * time.Millisecond)
+	// testColors(display)
+	// time.Sleep(1000 * time.Millisecond)
 	testFonts(display)
 	time.Sleep(1000 * time.Millisecond)
-	testShapes(display)
-	time.Sleep(1000 * time.Millisecond)
+	// testShapes(display)
+	// time.Sleep(1000 * time.Millisecond)
 }
 
 func testLines(display display.RGB565Display) {
-	display.Clear(rgb565.BLACK)
+	display.SetBackgroundColor(rgb565.BLACK)
+	display.Clear()
 	xmax := float64(display.ScreenWidth() - 1)
 	ymax := float64(display.ScreenHeight() - 1)
-	display.Line(0, 0, xmax, ymax, rgb565.GREEN)
-	display.Line(0, ymax, xmax, 0, rgb565.GREEN)
-	display.Line(0, 0, xmax, 0, rgb565.YELLOW)
-	display.Line(xmax, 0, xmax, ymax, rgb565.YELLOW)
-	display.Line(xmax, ymax, 0, ymax, rgb565.YELLOW)
-	display.Line(0, ymax, 0, 0, rgb565.YELLOW)
+	display.SetColor(rgb565.GREEN)
+	display.Line(0, 0, xmax, ymax)
+	display.Line(0, ymax, xmax, 0)
+	display.SetColor(rgb565.YELLOW)
+	display.Line(0, 0, xmax, 0)
+	display.Line(xmax, 0, xmax, ymax)
+	display.Line(xmax, ymax, 0, ymax)
+	display.Line(0, ymax, 0, 0)
 	display.Update()
 }
 
 func testFonts(display display.RGB565Display) {
-	display.Clear(rgb565.WHITE)
+	display.SetBackgroundColor(rgb565.WHITE)
+	display.Clear()
 	display.MoveCursor(5, 5)
-	display.SetFontBackgroundColor(rgb565.WHITE)
-	display.SetFontColor(rgb565.BLUE)
+	display.SetColor(rgb565.BLUE)
 	display.SetFont(fonts.Org_01)
 	display.SetLineHeight(40)
 	display.SetFont(fonts.FreeSans24pt7b)
@@ -73,23 +76,29 @@ func testFonts(display display.RGB565Display) {
 }
 
 func testColors(display display.RGB565Display) {
-	display.Clear(rgb565.BLACK)
+	display.SetBackgroundColor(rgb565.BLACK)
+	display.Clear()
 	colors := []rgb565.RGB565{rgb565.WHITE, rgb565.YELLOW, rgb565.GREEN, rgb565.BLUE, rgb565.RED}
 	xmax := float64(display.ScreenWidth() - 1)
 	const height = 20
 	const margin = 10
 	for color := 0; color < len(colors); color++ {
 		ys := float64(color * (height + margin))
-		display.FillRectangle(0, ys, xmax, ys+height, colors[color])
+		display.SetColor(colors[color])
+		display.FillRectangle(0, ys, xmax, ys+height)
 	}
 	display.Update()
 }
 
 func testShapes(display display.RGB565Display) {
-	display.Clear(rgb565.BLUE)
-	display.Circle(50, 50, 30, rgb565.YELLOW)
-	display.FillCircle(100, 100, 30, rgb565.GREEN)
-	display.FillRectangle(50, 150, 220, 180, rgb565.RED)
+	display.SetBackgroundColor(rgb565.BLUE)
+	display.Clear()
+	display.SetColor(rgb565.YELLOW)
+	display.Circle(50, 50, 30)
+	display.SetColor(rgb565.GREEN)
+	display.FillCircle(100, 100, 30)
+	display.SetColor(rgb565.RED)
+	display.FillRectangle(50, 150, 220, 180)
 	display.Update()
 }
 

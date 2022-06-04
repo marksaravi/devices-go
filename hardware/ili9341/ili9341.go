@@ -51,8 +51,8 @@ type device struct {
 	cursorX           int
 	cursorY           int
 	font              fonts.BitmapFont
-	fontColor         rgb565.RGB565
-	fontBGColor       rgb565.RGB565
+	backgroundColor   rgb565.RGB565
+	color             rgb565.RGB565
 	letterSpacing     int
 	lineHeight        int
 	screenLeftPadding int
@@ -74,8 +74,7 @@ func NewILI9341(
 		cursorX:           screen_left_padding,
 		cursorY:           screen_top_padding,
 		font:              fonts.FreeSans24pt7b,
-		fontColor:         rgb565.BLACK,
-		fontBGColor:       rgb565.WHITE,
+		color:             rgb565.BLACK,
 		letterSpacing:     0,
 		lineHeight:        32,
 		screenLeftPadding: screen_top_padding,
@@ -226,7 +225,7 @@ func (dev *device) Update() {
 	}
 }
 
-func (dev *device) Pixel(x, y float64, color rgb565.RGB565) {
+func (dev *device) pixel(x, y float64, color rgb565.RGB565) {
 	xi := int(math.Round(x))
 	yi := int(math.Round(y))
 	if xi < 0 || yi < 0 || xi >= lcd_width || yi >= lcd_height {
@@ -243,25 +242,28 @@ func (dev *device) Pixel(x, y float64, color rgb565.RGB565) {
 	dev.segments[i+1] = byte(color >> 8)
 	dev.isSegmentChanged[seg] = true
 	dev.mu.Unlock()
-
 }
 
-func (dev *device) Circle(x, y, radius float64, color rgb565.RGB565) {
+func (dev *device) Pixel(x, y float64) {
+	dev.pixel(x, y, dev.color)
+}
+
+func (dev *device) Circle(x, y, radius float64) {
 	dangle := math.Pi / 180
 
 	for angle := float64(0); angle < math.Pi*2; angle += dangle {
-		dev.Pixel(x+radius*math.Cos(angle), y+radius*math.Sin(angle), color)
+		dev.Pixel(x+radius*math.Cos(angle), y+radius*math.Sin(angle))
 	}
 }
 
-func (dev *device) Rectangle(x1, y1, x2, y2 float64, color rgb565.RGB565) {
-	dev.Line(x1, y1, x2, y1, color)
-	dev.Line(x2, y1, x2, y2, color)
-	dev.Line(x2, y2, x1, y2, color)
-	dev.Line(x1, y2, x1, y1, color)
+func (dev *device) Rectangle(x1, y1, x2, y2 float64) {
+	dev.Line(x1, y1, x2, y1)
+	dev.Line(x2, y1, x2, y2)
+	dev.Line(x2, y2, x1, y2)
+	dev.Line(x1, y2, x1, y1)
 }
 
-func (dev *device) FillRectangle(x1, y1, x2, y2 float64, color rgb565.RGB565) {
+func (dev *device) FillRectangle(x1, y1, x2, y2 float64) {
 	xs := x1
 	xe := x2
 	if x2 < x1 {
@@ -269,21 +271,21 @@ func (dev *device) FillRectangle(x1, y1, x2, y2 float64, color rgb565.RGB565) {
 		xe = x1
 	}
 	for x := xs; x <= xe; x++ {
-		dev.verLine(x, y1, y2, color)
+		dev.verLine(x, y1, y2)
 	}
 }
 
-func (dev *device) FillCircle(x, y, radius float64, color rgb565.RGB565) {
+func (dev *device) FillCircle(x, y, radius float64) {
 	dangle := math.Pi / 180
 
 	for r := radius; r > 0; r -= 1 {
 		for angle := float64(0); angle < math.Pi*2; angle += dangle {
-			dev.Pixel(x+r*math.Cos(angle), y+r*math.Sin(angle), color)
+			dev.Pixel(x+r*math.Cos(angle), y+r*math.Sin(angle))
 		}
 	}
 }
 
-func (dev *device) Line(x1, y1, x2, y2 float64, color rgb565.RGB565) {
+func (dev *device) Line(x1, y1, x2, y2 float64) {
 	xs := x1
 	ys := y1
 	xe := x2
@@ -296,23 +298,23 @@ func (dev *device) Line(x1, y1, x2, y2 float64, color rgb565.RGB565) {
 	}
 
 	if xs == xe {
-		dev.verLine(xs, ys, ye, color)
+		dev.verLine(xs, ys, ye)
 	} else {
-		dev.sloppedLine(xs, ys, xe, ye, color)
+		dev.sloppedLine(xs, ys, xe, ye)
 	}
 }
 
-func (dev *device) sloppedLine(xs, ys, xe, ye float64, color rgb565.RGB565) {
+func (dev *device) sloppedLine(xs, ys, xe, ye float64) {
 	a := (ye - ys) / (xe - xs)
 	b := (ys) - a*(xs)
 	var x, y float64
 	for x = xs; x <= xe; x += 1 {
 		y = a*float64(x) + b
-		dev.Pixel(x, y, color)
+		dev.Pixel(x, y)
 	}
 }
 
-func (dev *device) verLine(x, y1, y2 float64, color rgb565.RGB565) {
+func (dev *device) verLine(x, y1, y2 float64) {
 	var y float64 = 0
 	ys := y1
 	ye := y2
@@ -321,7 +323,7 @@ func (dev *device) verLine(x, y1, y2 float64, color rgb565.RGB565) {
 		ye = y1
 	}
 	for y = ys; y <= ye; y += 1 {
-		dev.Pixel(x, y, color)
+		dev.Pixel(x, y)
 	}
 }
 
@@ -332,28 +334,28 @@ func (dev *device) ShowSegment(segX, segY int, color rgb565.RGB565, state string
 	y1 := yOffs
 	x2 := xOffs + float64(segment_width-1)
 	y2 := yOffs + float64(segment_height-1)
-	dev.Rectangle(x1, y1, x2, y2, color)
+	dev.Rectangle(x1, y1, x2, y2)
 	xm := x1 + (x2-x1)/2
 	ym := y1 + (y2-y1)/2
 
 	if state == "dir" {
-		dev.Line(x1+3, ym, x2-3, ym, color)
-		dev.Line(x2-3, ym, x2-6, ym-3, color)
-		dev.Line(x2-3, ym, x2-6, ym+3, color)
+		dev.Line(x1+3, ym, x2-3, ym)
+		dev.Line(x2-3, ym, x2-6, ym-3)
+		dev.Line(x2-3, ym, x2-6, ym+3)
 	}
 	if state == "first" {
-		dev.FillCircle(xm, ym, 3, color)
+		dev.FillCircle(xm, ym, 3)
 	}
 	if state == "last" {
 		const offset = 3
-		dev.FillRectangle(x1+offset, y1+offset, x2-offset, y2-offset, color)
+		dev.FillRectangle(x1+offset, y1+offset, x2-offset, y2-offset)
 	}
 }
 
-func (dev *device) Clear(color rgb565.RGB565) {
+func (dev *device) Clear() {
 	for y := 0; y < lcd_height; y++ {
 		for x := 0; x < lcd_width; x++ {
-			dev.Pixel(float64(x), float64(y), color)
+			dev.pixel(float64(x), float64(y), dev.backgroundColor)
 		}
 	}
 	dev.Update()
@@ -399,12 +401,12 @@ func (dev *device) SetFont(font fonts.BitmapFont) {
 	dev.font = font
 }
 
-func (dev *device) SetFontColor(color rgb565.RGB565) {
-	dev.fontColor = color
+func (dev *device) SetBackgroundColor(color rgb565.RGB565) {
+	dev.backgroundColor = color
 }
 
-func (dev *device) SetFontBackgroundColor(color rgb565.RGB565) {
-	dev.fontBGColor = color
+func (dev *device) SetColor(color rgb565.RGB565) {
+	dev.color = color
 }
 
 func (dev *device) SetLineHeight(height int) {
@@ -433,11 +435,13 @@ func (dev *device) drawBitmapChar(char byte) error {
 			d := dev.font.Bitmap[glyph.BitmapOffset+bitIndex/8]
 			mask := byte(0b10000000) >> shift
 			bit := d & mask
+			color := dev.backgroundColor
 			if bit != 0 {
-				x := float64(dev.cursorX + w + glyph.XOffset)
-				y := float64(dev.cursorY + dev.lineHeight + h + glyph.YOffset)
-				dev.Pixel(x, y, dev.fontColor)
+				color = dev.color
 			}
+			x := float64(dev.cursorX + w + glyph.XOffset)
+			y := float64(dev.cursorY + dev.lineHeight + h + glyph.YOffset)
+			dev.pixel(x, y, color)
 		}
 	}
 	xforward := glyph.XAdvance
