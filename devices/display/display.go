@@ -87,18 +87,17 @@ func (d *rgbDevice) Pixel(x, y float64) {
 }
 
 func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
+	// Bresenham's line algorithm
 	xs := x1
 	xe := x2
 	ys := y1
 	ye := y2
 	dx := math.Abs(xe - xs)
-	// sx := xs < xe ? 1 : -1
 	sx := float64(-1)
 	if xs < xe {
 		sx = 1
 	}
 	dy := -math.Abs(ye - ys)
-	// sy := ys < ye ? 1 : -1
 	sy := float64(-1)
 	if ys < ye {
 		sy = 1
@@ -126,28 +125,3 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 		}
 	}
 }
-
-/*
-plotLine(x0, y0, x1, y1)
-    dx = abs(x1 - x0)
-    sx = x0 < x1 ? 1 : -1
-    dy = -abs(y1 - y0)
-    sy = y0 < y1 ? 1 : -1
-    error = dx + dy
-
-    while true
-        plot(x0, y0)
-        if x0 == x1 && y0 == y1 break
-        e2 = 2 * error
-        if e2 >= dy
-            if x0 == x1 break
-            error = error + dy
-            x0 = x0 + sx
-        end if
-        if e2 <= dx
-            if y0 == y1 break
-            error = error + dx
-            y0 = y0 + sy
-        end if
-    end while
-*/

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/marksaravi/devices-go/colors/rgb565"
@@ -44,14 +45,27 @@ func main() {
 }
 
 func testLines(ili9341Display display.RGBDisplay) {
-	ili9341Display.SetBackgroundColor(rgb565.GREEN)
+	ili9341Display.SetBackgroundColor(rgb565.WHITE)
 	ili9341Display.Clear()
 	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Pixel(160, 120)
+	// ili9341Display.Pixel(160, 120)
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
 	// ili9341Display.SetColor(rgb565.GREEN)
 	ili9341Display.Line(0, 0, xmax, ymax)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2
+	sAngle := float64(0)
+	eAngle := sAngle + math.Pi/180
+	dAngle := math.Pi / 180
+
+	for angle := sAngle; angle < eAngle; angle += dAngle {
+		x := xc + math.Cos(angle)*radius
+		y := yc + math.Sin(angle)*radius
+		fmt.Print(x, y)
+		ili9341Display.Line(xc, yc, x, y) // error
+	}
 	// ili9341Display.Line(0, ymax, xmax, 0)
 	// ili9341Display.SetColor(rgb565.YELLOW)
 	// ili9341Display.Line(0, 0, xmax, 0)
@@ -59,6 +73,7 @@ func testLines(ili9341Display display.RGBDisplay) {
 	// ili9341Display.Line(xmax, ymax, 0, ymax)
 	// ili9341Display.Line(0, ymax, 0, 0)
 	ili9341Display.Update()
+	time.Sleep(time.Second)
 }
 
 // func testFonts(ili9341Display display.RGB565Display) {
