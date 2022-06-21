@@ -30,8 +30,8 @@ func main() {
 	reset := createGpioOutPin("GPIO23")
 
 	ili9341Dev, err := ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
-	var ili9341Display display.RGB565Display
-	ili9341Display = display.NewRGB565Display(ili9341Dev)
+	var ili9341Display display.RGBDisplay
+	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	// time.Sleep(1000 * time.Millisecond)
 	testLines(ili9341Display)
@@ -39,13 +39,12 @@ func main() {
 	// testColors(ili9341Display)
 	// time.Sleep(1000 * time.Millisecond)
 	// testFonts(ili9341Display)
-	time.Sleep(1000 * time.Millisecond)
 	// testShapes(ili9341Display)
 	time.Sleep(1000 * time.Millisecond)
 }
 
-func testLines(ili9341Display display.RGB565Display) {
-	ili9341Display.SetBackgroundColor(rgb565.BLACK)
+func testLines(ili9341Display display.RGBDisplay) {
+	ili9341Display.SetBackgroundColor(rgb565.BLUE)
 	ili9341Display.Clear()
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)

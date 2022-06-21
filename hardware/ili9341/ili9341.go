@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/marksaravi/devices-go/colors/rgb"
 	"github.com/marksaravi/devices-go/colors/rgb565"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/spi"
@@ -42,6 +43,7 @@ type device struct {
 	isSegmentChanged []bool
 	changedSegment   chan int
 	color            rgb565.RGB565
+	bgColor          rgb565.RGB565
 }
 
 func NewILI9341(
@@ -76,8 +78,12 @@ func (dev *device) Pixel(x, y float64) {
 	dev.pixel(x, y, dev.color)
 }
 
-func (dev *device) SetColor(color rgb565.RGB565) {
-	dev.color = color
+func (dev *device) SetColor(color rgb.RGB) {
+	dev.color, _ = rgb.ToRGB565(color)
+}
+
+func (dev *device) SetBackgroundColor(color rgb.RGB) {
+	dev.bgColor, _ = rgb.ToRGB565(color)
 }
 
 func (dev *device) ScreenWidth() float64 {

@@ -1,7 +1,7 @@
 package display
 
 import (
-	"github.com/marksaravi/devices-go/colors/rgb565"
+	"github.com/marksaravi/devices-go/colors/rgb"
 )
 
 type Rotation int
@@ -15,10 +15,23 @@ const (
 
 const ()
 
-type GenericDisplay interface {
+type pixelDevice interface {
+	Update()
+	Pixel(x, y float64)
+	ScreenWidth() float64
+	ScreenHeight() float64
+	SetBackgroundColor(rgb.RGB)
+	SetColor(rgb.RGB)
+}
+
+type RGBDisplay interface {
 	Update()
 	ScreenWidth() float64
 	ScreenHeight() float64
+
+	// Color
+	SetBackgroundColor(rgb.RGB)
+	SetColor(rgb.RGB)
 
 	// Drawing methods
 	Clear()
@@ -39,64 +52,51 @@ type GenericDisplay interface {
 	// Write(text string)
 }
 
-type RGB565Display interface {
-	GenericDisplay
-	SetBackgroundColor(rgb565.RGB565)
-	SetColor(rgb565.RGB565)
+type rgbDevice struct {
+	pixeldev pixelDevice
+	color    rgb.RGB
+	bgColor  rgb.RGB
 }
 
-type rgb565graphicHardware interface {
-	Update()
-	SetColor(color rgb565.RGB565)
-	Pixel(x, y float64)
-	ScreenWidth() float64
-	ScreenHeight() float64
-}
-
-type rgb565hardware struct {
-	rgb565Dev rgb565graphicHardware
-	color     rgb565.RGB565
-	bgColor   rgb565.RGB565
-}
-
-func NewRGB565Display(rgb565Dev rgb565graphicHardware) RGB565Display {
-	return &rgb565hardware{
-		rgb565Dev: rgb565Dev,
-		color:     rgb565.WHITE,
-		bgColor:   rgb565.BLACK,
+func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
+	return &rgbDevice{
+		pixeldev: pixeldev,
 	}
 }
 
-func (d *rgb565hardware) Update() {
-	d.rgb565Dev.Update()
+func (d *rgbDevice) Update() {
+	d.pixeldev.Update()
 }
 
-func (d *rgb565hardware) ScreenWidth() float64 {
-	return d.rgb565Dev.ScreenWidth()
+func (d *rgbDevice) ScreenWidth() float64 {
+	return d.pixeldev.ScreenWidth()
 }
 
-func (d *rgb565hardware) ScreenHeight() float64 {
-	return d.rgb565Dev.ScreenHeight()
+func (d *rgbDevice) ScreenHeight() float64 {
+	return d.pixeldev.ScreenHeight()
 }
 
-func (d *rgb565hardware) SetBackgroundColor(color rgb565.RGB565) {
+func (d *rgbDevice) SetBackgroundColor(color rgb.RGB) {
 	d.bgColor = color
+	d.pixeldev.SetBackgroundColor(color)
 }
 
-func (d *rgb565hardware) SetColor(color rgb565.RGB565) {
+func (d *rgbDevice) SetColor(color rgb.RGB) {
 	d.color = color
+	d.pixeldev.SetColor(color)
 }
 
 // Drawing methods
-func (d *rgb565hardware) Clear() {
-	d.rgb565Dev.SetColor(d.bgColor)
-	clear(d.rgb565Dev)
+func (d *rgbDevice) Clear() {
+	d.pixeldev.SetColor(d.bgColor)
+
 }
-func (d *rgb565hardware) Pixel(x, y float64) {
-	d.rgb565Dev.SetColor(d.color)
-	d.rgb565Dev.Pixel(x, y)
+
+func (d *rgbDevice) Pixel(x, y float64) {
+	d.pixeldev.SetColor(d.color)
+	d.pixeldev.Pixel(x, y)
 }
-func (d *rgb565hardware) Line(x1, y1, x2, y2 float64) {
-	d.rgb565Dev.SetColor(d.color)
-	line(x1, y1, x2, y2, d.rgb565Dev)
+
+func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
+	d.pixeldev.SetColor(d.color)
 }
