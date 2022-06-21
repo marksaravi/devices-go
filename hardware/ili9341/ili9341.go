@@ -312,10 +312,20 @@ func (dev *device) Line(x1, y1, x2, y2 float64) {
 func (dev *device) sloppedLine(xs, ys, xe, ye float64) {
 	a := (ye - ys) / (xe - xs)
 	b := (ys) - a*(xs)
-	var x, y float64
-	for x = xs; x <= xe; x += 1 {
-		y = a*float64(x) + b
+	var y float64 = 0
+
+	for x := xs; x <= xe; {
+		y = a*x + b
 		dev.Pixel(x, y)
+		nx := x + 1
+		ny := a*nx + b
+		ydiff := ny - y
+		absydiff := math.Abs(ydiff)
+		if math.Abs(absydiff) >= 1 {
+			ny = y + ydiff/absydiff
+			nx = (ny - b) / a
+		}
+		x = nx
 	}
 }
 
