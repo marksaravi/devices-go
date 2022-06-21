@@ -8,11 +8,10 @@ import (
 
 type RGB interface{}
 
-func ToRGB565(rgb RGB) (rgb565.RGB565, error) {
-	switch v := rgb.(type) {
-	case rgb565.RGB565:
-		return v, nil
-	default:
+func ToRGB565(color RGB) (rgb565.RGB565, error) {
+	c, ok := color.(rgb565.RGB565)
+	if !ok {
 		return rgb565.BLACK, errors.New("rgb565 color type mistmatch")
 	}
+	return c, nil
 }

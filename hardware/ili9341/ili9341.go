@@ -42,8 +42,6 @@ type device struct {
 	segments         []byte
 	isSegmentChanged []bool
 	changedSegment   chan int
-	color            rgb565.RGB565
-	bgColor          rgb565.RGB565
 }
 
 func NewILI9341(
@@ -58,7 +56,6 @@ func NewILI9341(
 		segments:         make([]byte, num_of_segments*bytes_per_segments),
 		isSegmentChanged: make([]bool, num_of_segments),
 		changedSegment:   make(chan int),
-		color:            rgb565.BLACK,
 	}
 	d.initLCD()
 	d.startDeviceMemoryWriter()
@@ -74,16 +71,9 @@ func (dev *device) Update() {
 	}
 }
 
-func (dev *device) Pixel(x, y float64) {
-	dev.pixel(x, y, dev.color)
-}
-
-func (dev *device) SetColor(color rgb.RGB) {
-	dev.color, _ = rgb.ToRGB565(color)
-}
-
-func (dev *device) SetBackgroundColor(color rgb.RGB) {
-	dev.bgColor, _ = rgb.ToRGB565(color)
+func (dev *device) Pixel(x, y float64, color rgb.RGB) {
+	c, _ := rgb.ToRGB565(color)
+	dev.pixel(x, y, c)
 }
 
 func (dev *device) ScreenWidth() float64 {

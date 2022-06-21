@@ -44,18 +44,20 @@ func main() {
 }
 
 func testLines(ili9341Display display.RGBDisplay) {
-	ili9341Display.SetBackgroundColor(rgb565.BLUE)
+	ili9341Display.SetBackgroundColor(rgb565.GREEN)
 	ili9341Display.Clear()
-	xmax := float64(ili9341Display.ScreenWidth() - 1)
-	ymax := float64(ili9341Display.ScreenHeight() - 1)
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.Line(0, 0, xmax, ymax)
-	ili9341Display.Line(0, ymax, xmax, 0)
-	ili9341Display.SetColor(rgb565.YELLOW)
-	ili9341Display.Line(0, 0, xmax, 0)
-	ili9341Display.Line(xmax, 0, xmax, ymax)
-	ili9341Display.Line(xmax, ymax, 0, ymax)
-	ili9341Display.Line(0, ymax, 0, 0)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Pixel(160, 120)
+	// xmax := float64(ili9341Display.ScreenWidth() - 1)
+	// ymax := float64(ili9341Display.ScreenHeight() - 1)
+	// ili9341Display.SetColor(rgb565.GREEN)
+	// ili9341Display.Line(0, 0, xmax, ymax)
+	// ili9341Display.Line(0, ymax, xmax, 0)
+	// ili9341Display.SetColor(rgb565.YELLOW)
+	// ili9341Display.Line(0, 0, xmax, 0)
+	// ili9341Display.Line(xmax, 0, xmax, ymax)
+	// ili9341Display.Line(xmax, ymax, 0, ymax)
+	// ili9341Display.Line(0, ymax, 0, 0)
 	ili9341Display.Update()
 }
 

@@ -4,24 +4,11 @@ import (
 	"github.com/marksaravi/devices-go/colors/rgb"
 )
 
-type Rotation int
-
-const (
-	ROTATION_0   Rotation = 0
-	ROTATION_90  Rotation = 1
-	ROTATION_180 Rotation = 2
-	ROTATION_270 Rotation = 3
-)
-
-const ()
-
 type pixelDevice interface {
 	Update()
-	Pixel(x, y float64)
+	Pixel(x, y float64, color rgb.RGB)
 	ScreenWidth() float64
 	ScreenHeight() float64
-	SetBackgroundColor(rgb.RGB)
-	SetColor(rgb.RGB)
 }
 
 type RGBDisplay interface {
@@ -78,25 +65,24 @@ func (d *rgbDevice) ScreenHeight() float64 {
 
 func (d *rgbDevice) SetBackgroundColor(color rgb.RGB) {
 	d.bgColor = color
-	d.pixeldev.SetBackgroundColor(color)
 }
 
 func (d *rgbDevice) SetColor(color rgb.RGB) {
 	d.color = color
-	d.pixeldev.SetColor(color)
 }
 
 // Drawing methods
 func (d *rgbDevice) Clear() {
-	d.pixeldev.SetColor(d.bgColor)
-
+	for x := float64(0); x < d.pixeldev.ScreenWidth(); x += 1 {
+		for y := float64(0); y < d.pixeldev.ScreenHeight(); y += 1 {
+			d.pixeldev.Pixel(x, y, d.bgColor)
+		}
+	}
 }
 
 func (d *rgbDevice) Pixel(x, y float64) {
-	d.pixeldev.SetColor(d.color)
-	d.pixeldev.Pixel(x, y)
+	d.pixeldev.Pixel(x, y, d.color)
 }
 
 func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
-	d.pixeldev.SetColor(d.color)
 }
