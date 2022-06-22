@@ -1,7 +1,6 @@
 package display
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/marksaravi/devices-go/colors/rgb"
@@ -89,7 +88,6 @@ func (d *rgbDevice) Pixel(x, y float64) {
 
 func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 	// Bresenham's line algorithm
-	fmt.Println(x1, y1, x2, y2)
 	xs := int(math.Round(x1))
 	ys := int(math.Round(y1))
 	xe := int(math.Round(x2))
@@ -110,7 +108,6 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 
 	for true {
 		d.pixeldev.Pixel(float64(xs), float64(ys), d.color)
-		fmt.Println(xs, ys, xe, ye)
 		if xs == xe && ys == ye {
 			break
 		}
