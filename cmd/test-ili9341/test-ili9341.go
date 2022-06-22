@@ -71,11 +71,11 @@ func testArcs(ili9341Display display.RGBDisplay) {
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
 	xc := xmax / 2
 	yc := ymax / 2
-	radius := ymax / 2.2
+	radius := ymax / 2.1
 	ili9341Display.SetBackgroundColor(rgb565.WHITE)
 	ili9341Display.Clear()
 	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.Circle(xc, yc, radius)
+	ili9341Display.FillCircle(xc, yc, radius)
 	ili9341Display.Update()
 }
 
