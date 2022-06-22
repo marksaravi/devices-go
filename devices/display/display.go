@@ -34,12 +34,16 @@ type RGBDisplay interface {
 	Clear()
 	Pixel(x, y float64)
 	Line(x1, y1, x2, y2 float64)
-	// Rectangle(x1, y1, x2, y2 float64)
+
+	Rectangle(x1, y1, x2, y2 float64)
+	FillRectangle(x1, y1, x2, y2 float64)
+	ThickRectangle(x1, y1, x2, y2 float64, width int, widthType WidthType)
+
 	// Arc(x, y, radius, startAngle, endAngle, width float64)
 	Circle(x, y, radius float64)
 	ThickCircle(x, y, radius float64, width int, widthType WidthType)
 	FillCircle(x, y, radius float64)
-	// FillRectangle(x1, y1, x2, y2 float64)
+
 	// FillCircle(x, y, radius float64)
 
 	// Printing methods
@@ -185,3 +189,14 @@ func (dev *rgbDevice) ThickCircle(x, y, radius float64, width int, widthType Wid
 		dev.Circle(x, y, rs-float64(dr))
 	}
 }
+
+func (dev *rgbDevice) Rectangle(x1, y1, x2, y2 float64) {
+	dev.Line(x1, y1, x2, y1)
+	dev.Line(x2, y1, x2, y2)
+	dev.Line(x2, y2, x1, y2)
+	dev.Line(x1, y2, x1, y1)
+}
+
+func (dev *rgbDevice) FillRectangle(x1, y1, x2, y2 float64) {}
+
+func (dev *rgbDevice) ThickRectangle(x1, y1, x2, y2 float64, width int, widthType WidthType) {}

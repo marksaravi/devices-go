@@ -34,11 +34,16 @@ func main() {
 	var ili9341Display display.RGBDisplay
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
-	// time.Sleep(1000 * time.Millisecond)
-	// testLines(ili9341Display)
-	// time.Sleep(1000 * time.Millisecond)
-	testArcs(ili9341Display)
-	time.Sleep(1000 * time.Millisecond)
+
+	tests := []func(display.RGBDisplay){drawRectangle}
+	for i := 0; i < len(tests); i++ {
+		ili9341Display.SetBackgroundColor(rgb565.WHITE)
+		ili9341Display.Clear()
+		tests[i](ili9341Display)
+		ili9341Display.Update()
+		time.Sleep(1000 * time.Millisecond)
+	}
+
 	// testColors(ili9341Display)
 	// time.Sleep(1000 * time.Millisecond)
 	// testFonts(ili9341Display)
@@ -63,10 +68,10 @@ func testLines(ili9341Display display.RGBDisplay) {
 		y := math.Sin(angle) * radius
 		ili9341Display.Line(xc, yc, xc+x, yc+y)
 	}
-	ili9341Display.Update()
+
 }
 
-func testArcs(ili9341Display display.RGBDisplay) {
+func drawCircle(ili9341Display display.RGBDisplay) {
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
 	xc := xmax / 2
@@ -89,7 +94,70 @@ func testArcs(ili9341Display display.RGBDisplay) {
 	ili9341Display.ThickCircle(xc, yc, radius, 10, display.INNER_WIDTH)
 	ili9341Display.SetColor(rgb565.BLUE)
 	ili9341Display.Circle(xc, yc, radius)
-	ili9341Display.Update()
+
+}
+
+func drawFillCircle(ili9341Display display.RGBDisplay) {
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2.1
+	ili9341Display.SetBackgroundColor(rgb565.WHITE)
+	ili9341Display.Clear()
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.ThickCircle(xc, yc, radius, 10, display.OUTER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
+
+	radius = radius * .75
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.ThickCircle(xc, yc, radius, 10, display.CENTER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
+	radius = radius * .75
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.ThickCircle(xc, yc, radius, 10, display.INNER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
+
+}
+
+func drawThickCircle(ili9341Display display.RGBDisplay) {
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2.1
+	ili9341Display.SetBackgroundColor(rgb565.WHITE)
+	ili9341Display.Clear()
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.ThickCircle(xc, yc, radius, 10, display.OUTER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
+
+	radius = radius * .75
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.ThickCircle(xc, yc, radius, 10, display.CENTER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
+	radius = radius * .75
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.ThickCircle(xc, yc, radius, 10, display.INNER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
+
+}
+
+func drawRectangle(ili9341Display display.RGBDisplay) {
+	const N int = 2
+	xy := [N][]float64{{10, 10, 100, 100}, {50, 50, 200, 200}}
+	colors := [N]rgb565.RGB565{rgb565.BLUE, rgb565.GREEN}
+	for i := 0; i < 2; i++ {
+		ili9341Display.SetColor(colors[i])
+		ili9341Display.Rectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
+	}
+
 }
 
 // func testFonts(ili9341Display display.RGB565Display) {
@@ -104,7 +172,7 @@ func testArcs(ili9341Display display.RGBDisplay) {
 // 	ili9341Display.SetFont(fonts.FreeMono18pt7b)
 // 	ili9341Display.Write("Hello Mark!\n")
 // 	ili9341Display.Write("0123456789")
-// 	ili9341Display.Update()
+//
 // }
 
 // func testColors(ili9341Display display.RGB565Display) {
@@ -119,7 +187,7 @@ func testArcs(ili9341Display display.RGBDisplay) {
 // 		ili9341Display.SetColor(colors[color])
 // 		ili9341Display.FillRectangle(0, ys, xmax, ys+height)
 // 	}
-// 	ili9341Display.Update()
+//
 // }
 
 // func testShapes(ili9341Display display.RGB565Display) {
@@ -132,7 +200,7 @@ func testArcs(ili9341Display display.RGBDisplay) {
 // 	ili9341Display.Arc(120, 120, 118, -math.Pi/4, math.Pi/4, 40)
 // 	// ili9341Display.SetColor(rgb565.RED)
 // 	// ili9341Display.FillRectangle(50, 150, 220, 180)
-// 	ili9341Display.Update()
+//
 // }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
