@@ -28,7 +28,7 @@ type RGBDisplay interface {
 	Line(x1, y1, x2, y2 float64)
 	// Rectangle(x1, y1, x2, y2 float64)
 	// Arc(x, y, radius, startAngle, endAngle, width float64)
-	// Circle(x, y, radius float64)
+	Circle(x, y, radius float64)
 	// FillRectangle(x1, y1, x2, y2 float64)
 	// FillCircle(x, y, radius float64)
 
@@ -126,5 +126,26 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 			err = err + dx
 			ys = ys + sy
 		}
+	}
+}
+
+func (dev *rgbDevice) Circle(x, y, radius float64) {
+	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+	putpixels := func(xc, yc, dr, d float64) {
+		dev.pixeldev.Pixel(int(math.Round(xc+d)), int(math.Round(yc+dr)), dev.color)
+		dev.pixeldev.Pixel(int(math.Round(xc+d)), int(math.Round(yc-dr)), dev.color)
+		dev.pixeldev.Pixel(int(math.Round(xc+dr)), int(math.Round(yc+d)), dev.color)
+		dev.pixeldev.Pixel(int(math.Round(xc+dr)), int(math.Round(yc-d)), dev.color)
+
+		dev.pixeldev.Pixel(int(math.Round(xc-d)), int(math.Round(yc+dr)), dev.color)
+		dev.pixeldev.Pixel(int(math.Round(xc-d)), int(math.Round(yc-dr)), dev.color)
+		dev.pixeldev.Pixel(int(math.Round(xc-dr)), int(math.Round(yc+d)), dev.color)
+		dev.pixeldev.Pixel(int(math.Round(xc-dr)), int(math.Round(yc-d)), dev.color)
+	}
+	for dr := float64(0); dr <= radius*0.7; dr += 1 {
+		// r*r = dx*dx+dy+dy
+		d := math.Sqrt(radius*radius - dr*dr)
+		// fmt.Println(dx, dy)
+		putpixels(x, y, dr, d)
 	}
 }

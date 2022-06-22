@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"time"
 
 	"github.com/marksaravi/devices-go/colors/rgb565"
 	"github.com/marksaravi/devices-go/devices/display"
@@ -34,8 +35,10 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	// time.Sleep(1000 * time.Millisecond)
-	testLines(ili9341Display)
+	// testLines(ili9341Display)
 	// time.Sleep(1000 * time.Millisecond)
+	testArcs(ili9341Display)
+	time.Sleep(1000 * time.Millisecond)
 	// testColors(ili9341Display)
 	// time.Sleep(1000 * time.Millisecond)
 	// testFonts(ili9341Display)
@@ -43,24 +46,36 @@ func main() {
 }
 
 func testLines(ili9341Display display.RGBDisplay) {
-	ili9341Display.SetBackgroundColor(rgb565.WHITE)
-	ili9341Display.Clear()
-	ili9341Display.SetColor(rgb565.BLUE)
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
 	xc := xmax / 2
 	yc := ymax / 2
 	radius := ymax / 2
-
 	sAngle := math.Pi / 180 * 0
 	rAngle := 2 * math.Pi
 	dAngle := math.Pi / 180 * 5
+
+	ili9341Display.SetBackgroundColor(rgb565.WHITE)
+	ili9341Display.Clear()
+	ili9341Display.SetColor(rgb565.BLUE)
 	for angle := sAngle; angle < sAngle+rAngle; angle += dAngle {
 		x := math.Cos(angle) * radius
 		y := math.Sin(angle) * radius
-		ili9341Display.Line(xc, yc, xc+x, yc+y) // error
-		// fmt.Println(angle, x, y)
+		ili9341Display.Line(xc, yc, xc+x, yc+y)
 	}
+	ili9341Display.Update()
+}
+
+func testArcs(ili9341Display display.RGBDisplay) {
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2.2
+	ili9341Display.SetBackgroundColor(rgb565.WHITE)
+	ili9341Display.Clear()
+	ili9341Display.SetColor(rgb565.GREEN)
+	ili9341Display.Circle(xc, yc, radius)
 	ili9341Display.Update()
 }
 
