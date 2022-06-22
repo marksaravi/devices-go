@@ -177,7 +177,7 @@ func (dev *rgbDevice) FillCircle(x, y, radius float64) {
 	}
 }
 
-func getThicknessStart(mid float64, width int, widthType WidthType) float64 {
+func calcThicknessStart(mid float64, width int, widthType WidthType) float64 {
 	from := mid
 	switch widthType {
 	case OUTER_WIDTH:
@@ -189,7 +189,7 @@ func getThicknessStart(mid float64, width int, widthType WidthType) float64 {
 }
 
 func (dev *rgbDevice) ThickCircle(x, y, radius float64, width int, widthType WidthType) {
-	rs := getThicknessStart(radius, width, widthType)
+	rs := calcThicknessStart(radius, width, widthType)
 	for dr := 0; dr < width; dr++ {
 		dev.Circle(x, y, rs-float64(dr))
 	}
@@ -227,8 +227,8 @@ func (dev *rgbDevice) ThickRectangle(x1, y1, x2, y2 float64, width int, widthTyp
 		ys = y2
 		ye = y1
 	}
-	s := getThicknessStart(0, width, widthType)
+	s := calcThicknessStart(0, width, widthType)
 	for dxy := float64(0); dxy < float64(width); dxy++ {
-		dev.Rectangle(xs+s+dxy, ys+s+dxy, xe-s-dxy, ye-s-dxy)
+		dev.Rectangle(xs-s+dxy, ys-s+dxy, xe+s-dxy, ye+s-dxy)
 	}
 }

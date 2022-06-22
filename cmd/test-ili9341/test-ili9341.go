@@ -35,7 +35,12 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 
-	tests := []func(display.RGBDisplay){drawRectangle, drawFillRectangle, drawThickRectangle}
+	tests := []func(display.RGBDisplay){
+		drawThickCircle,
+		// drawRectangle,
+		// drawFillRectangle,
+		// drawThickRectangle,
+	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(rgb565.WHITE)
 		ili9341Display.Clear()
@@ -71,32 +76,6 @@ func testLines(ili9341Display display.RGBDisplay) {
 
 }
 
-func drawCircle(ili9341Display display.RGBDisplay) {
-	xmax := float64(ili9341Display.ScreenWidth() - 1)
-	ymax := float64(ili9341Display.ScreenHeight() - 1)
-	xc := xmax / 2
-	yc := ymax / 2
-	radius := ymax / 2.1
-	ili9341Display.SetBackgroundColor(rgb565.WHITE)
-	ili9341Display.Clear()
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.OUTER_WIDTH)
-	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-
-	radius = radius * .75
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.CENTER_WIDTH)
-	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-	radius = radius * .75
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.INNER_WIDTH)
-	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-
-}
-
 func drawFillCircle(ili9341Display display.RGBDisplay) {
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
@@ -124,29 +103,22 @@ func drawFillCircle(ili9341Display display.RGBDisplay) {
 }
 
 func drawThickCircle(ili9341Display display.RGBDisplay) {
+	const N int = 3
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
 	xc := xmax / 2
 	yc := ymax / 2
 	radius := ymax / 2.1
-	ili9341Display.SetBackgroundColor(rgb565.WHITE)
-	ili9341Display.Clear()
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.OUTER_WIDTH)
-	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-
-	radius = radius * .75
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.CENTER_WIDTH)
-	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-	radius = radius * .75
-	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.INNER_WIDTH)
-	ili9341Display.SetColor(rgb565.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-
+	xyc := [N][]float64{{xc, yc, radius}, {xc, yc, radius * .75}, {xc, yc, radius * .45}}
+	colors := [N]rgb565.RGB565{rgb565.ROYAL_BLUE, rgb565.SILVER, rgb565.FLORECENT_GREEN}
+	widhTypes := [N]display.WidthType{display.INNER_WIDTH, display.CENTER_WIDTH, display.OUTER_WIDTH}
+	const width = 10
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colors[i])
+		ili9341Display.ThickCircle(xyc[i][0], xyc[i][1], xyc[i][2], width, widhTypes[i])
+		ili9341Display.SetColor(rgb565.RED)
+		ili9341Display.Circle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
 }
 
 func drawRectangle(ili9341Display display.RGBDisplay) {
@@ -174,11 +146,12 @@ func drawFillRectangle(ili9341Display display.RGBDisplay) {
 func drawThickRectangle(ili9341Display display.RGBDisplay) {
 	const N int = 3
 	xy := [N][]float64{{100, 100, 10, 10}, {50, 50, 200, 200}, {100, 100, 300, 220}}
-	colors := [N]rgb565.RGB565{rgb565.YELLOW, rgb565.GREEN, rgb565.YELLOW}
+	colors := [N]rgb565.RGB565{rgb565.ROYAL_BLUE, rgb565.SILVER, rgb565.FLORECENT_GREEN}
 	widhTypes := [N]display.WidthType{display.INNER_WIDTH, display.CENTER_WIDTH, display.OUTER_WIDTH}
-	for i := 0; i < 2; i++ {
+	const width = 10
+	for i := 0; i < N; i++ {
 		ili9341Display.SetColor(colors[i])
-		ili9341Display.ThickRectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3], 3, widhTypes[i])
+		ili9341Display.ThickRectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3], width, widhTypes[i])
 		ili9341Display.SetColor(rgb565.RED)
 		ili9341Display.Rectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
 	}
