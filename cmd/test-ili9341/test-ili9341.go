@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"time"
 
 	"github.com/marksaravi/devices-go/colors/rgb565"
 	"github.com/marksaravi/devices-go/devices/display"
@@ -41,7 +40,6 @@ func main() {
 	// time.Sleep(1000 * time.Millisecond)
 	// testFonts(ili9341Display)
 	// testShapes(ili9341Display)
-	time.Sleep(1000 * time.Millisecond)
 }
 
 func testLines(ili9341Display display.RGBDisplay) {

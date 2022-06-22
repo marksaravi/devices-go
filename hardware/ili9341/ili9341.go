@@ -1,7 +1,6 @@
 package ili9341
 
 import (
-	"math"
 	"sync"
 	"time"
 
@@ -71,17 +70,17 @@ func (dev *device) Update() {
 	}
 }
 
-func (dev *device) Pixel(x, y float64, color rgb.RGB) {
+func (dev *device) Pixel(x, y int, color rgb.RGB) {
 	c, _ := rgb.ToRGB565(color)
 	dev.pixel(x, y, c)
 }
 
-func (dev *device) ScreenWidth() float64 {
-	return float64(lcd_width)
+func (dev *device) ScreenWidth() int {
+	return lcd_width
 }
 
-func (dev *device) ScreenHeight() float64 {
-	return float64(lcd_height)
+func (dev *device) ScreenHeight() int {
+	return lcd_height
 }
 
 func (dev *device) writeCommand(cmd byte) {
@@ -215,17 +214,15 @@ func (dev *device) reset() {
 	time.Sleep(time.Millisecond * SLEEP_MS)
 }
 
-func (dev *device) pixel(x, y float64, color rgb565.RGB565) {
-	xi := int(math.Round(x))
-	yi := int(math.Round(y))
-	if xi < 0 || yi < 0 || xi >= lcd_width || yi >= lcd_height {
+func (dev *device) pixel(x, y int, color rgb565.RGB565) {
+	if x < 0 || y < 0 || x >= lcd_width || y >= lcd_height {
 		return
 	}
-	xseg := xi / segment_width
-	yseg := yi / segment_height
+	xseg := x / segment_width
+	yseg := y / segment_height
 	seg := xseg*num_x_seg + yseg
-	xoffs := xi % segment_width
-	yoffs := yi % segment_height
+	xoffs := x % segment_width
+	yoffs := y % segment_height
 	i := seg*bytes_per_segments + (yoffs*segment_width+xoffs)*2
 	dev.mu.Lock()
 	dev.segments[i] = byte(color)

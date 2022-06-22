@@ -8,15 +8,15 @@ import (
 
 type pixelDevice interface {
 	Update()
-	Pixel(x, y float64, color rgb.RGB)
-	ScreenWidth() float64
-	ScreenHeight() float64
+	Pixel(x, y int, color rgb.RGB)
+	ScreenWidth() int
+	ScreenHeight() int
 }
 
 type RGBDisplay interface {
 	Update()
-	ScreenWidth() float64
-	ScreenHeight() float64
+	ScreenWidth() int
+	ScreenHeight() int
 
 	// Color
 	SetBackgroundColor(rgb.RGB)
@@ -57,11 +57,11 @@ func (d *rgbDevice) Update() {
 	d.pixeldev.Update()
 }
 
-func (d *rgbDevice) ScreenWidth() float64 {
+func (d *rgbDevice) ScreenWidth() int {
 	return d.pixeldev.ScreenWidth()
 }
 
-func (d *rgbDevice) ScreenHeight() float64 {
+func (d *rgbDevice) ScreenHeight() int {
 	return d.pixeldev.ScreenHeight()
 }
 
@@ -75,19 +75,19 @@ func (d *rgbDevice) SetColor(color rgb.RGB) {
 
 // Drawing methods
 func (d *rgbDevice) Clear() {
-	for x := float64(0); x < d.pixeldev.ScreenWidth(); x += 1 {
-		for y := float64(0); y < d.pixeldev.ScreenHeight(); y += 1 {
+	for x := 0; x < d.pixeldev.ScreenWidth(); x += 1 {
+		for y := 0; y < d.pixeldev.ScreenHeight(); y += 1 {
 			d.pixeldev.Pixel(x, y, d.bgColor)
 		}
 	}
 }
 
 func (d *rgbDevice) Pixel(x, y float64) {
-	d.pixeldev.Pixel(x, y, d.color)
+	d.pixeldev.Pixel(int(math.Round(x)), int(math.Round(y)), d.color)
 }
 
 func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
-	// Bresenham's line algorithm
+	// Bresenham's line algorithm https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 	xs := int(math.Round(x1))
 	ys := int(math.Round(y1))
 	xe := int(math.Round(x2))
@@ -107,7 +107,7 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 	err := dx + dy
 
 	for true {
-		d.pixeldev.Pixel(float64(xs), float64(ys), d.color)
+		d.pixeldev.Pixel(xs, ys, d.color)
 		if xs == xe && ys == ye {
 			break
 		}
