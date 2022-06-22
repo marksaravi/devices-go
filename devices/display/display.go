@@ -6,6 +6,14 @@ import (
 	"github.com/marksaravi/devices-go/colors/rgb"
 )
 
+type WidthType int
+
+const (
+	INNER_WIDTH  WidthType = 0
+	OUTER_WIDTH  WidthType = 1
+	CENTER_WIDTH WidthType = 2
+)
+
 type pixelDevice interface {
 	Update()
 	Pixel(x, y int, color rgb.RGB)
@@ -29,6 +37,7 @@ type RGBDisplay interface {
 	// Rectangle(x1, y1, x2, y2 float64)
 	// Arc(x, y, radius, startAngle, endAngle, width float64)
 	Circle(x, y, radius float64)
+	ThickCircle(x, y, radius float64, width int, widthType WidthType)
 	FillCircle(x, y, radius float64)
 	// FillRectangle(x1, y1, x2, y2 float64)
 	// FillCircle(x, y, radius float64)
@@ -168,10 +177,23 @@ func (dev *rgbDevice) FillCircle(x, y, radius float64) {
 		// dev.Line(math.Round(xc-dr), math.Round(yc+d))
 		// dev.Line(math.Round(xc-dr), math.Round(yc-d))
 	}
-	for dr := float64(0); dr <= math.Round(radius*0.707); dr += 1 {
+	for dr := float64(0); dr <= math.Ceil(radius*0.71); dr += 1 {
 		// r*r = dx*dx+dy+dy
 		d := math.Sqrt(radius*radius - dr*dr)
 		// fmt.Println(dx, dy)
 		putpixels(x, y, dr, d)
+	}
+}
+
+func (dev *rgbDevice) ThickCircle(x, y, radius float64, width int, widthType WidthType) {
+	rs := radius
+	switch widthType {
+	case OUTER_WIDTH:
+		rs = radius + float64(width)
+	case CENTER_WIDTH:
+		rs = radius + float64(width)/2
+	}
+	for dr := 0; dr < width; dr++ {
+		dev.Circle(x, y, rs-float64(dr))
 	}
 }

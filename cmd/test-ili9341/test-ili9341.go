@@ -75,7 +75,9 @@ func testArcs(ili9341Display display.RGBDisplay) {
 	ili9341Display.SetBackgroundColor(rgb565.WHITE)
 	ili9341Display.Clear()
 	ili9341Display.SetColor(rgb565.GREEN)
-	ili9341Display.FillCircle(xc, yc, radius)
+	// ili9341Display.ThickCircle(xc, yc, radius, 10, display.CENTER_WIDTH)
+	ili9341Display.SetColor(rgb565.BLUE)
+	ili9341Display.Circle(xc, yc, radius)
 	ili9341Display.Update()
 }
 
