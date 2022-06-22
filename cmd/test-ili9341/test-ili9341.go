@@ -35,7 +35,7 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 
-	tests := []func(display.RGBDisplay){drawRectangle}
+	tests := []func(display.RGBDisplay){drawRectangle, drawFillRectangle, drawThickRectangle}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(rgb565.WHITE)
 		ili9341Display.Clear()
@@ -155,6 +155,31 @@ func drawRectangle(ili9341Display display.RGBDisplay) {
 	colors := [N]rgb565.RGB565{rgb565.BLUE, rgb565.GREEN}
 	for i := 0; i < 2; i++ {
 		ili9341Display.SetColor(colors[i])
+		ili9341Display.Rectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
+	}
+
+}
+
+func drawFillRectangle(ili9341Display display.RGBDisplay) {
+	const N int = 2
+	xy := [N][]float64{{100, 100, 10, 10}, {50, 50, 200, 200}}
+	colors := [N]rgb565.RGB565{rgb565.BLUE, rgb565.GREEN}
+	for i := 0; i < 2; i++ {
+		ili9341Display.SetColor(colors[i])
+		ili9341Display.FillRectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
+	}
+
+}
+
+func drawThickRectangle(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	xy := [N][]float64{{100, 100, 10, 10}, {50, 50, 200, 200}, {100, 100, 300, 220}}
+	colors := [N]rgb565.RGB565{rgb565.YELLOW, rgb565.GREEN, rgb565.YELLOW}
+	widhTypes := [N]display.WidthType{display.INNER_WIDTH, display.CENTER_WIDTH, display.OUTER_WIDTH}
+	for i := 0; i < 2; i++ {
+		ili9341Display.SetColor(colors[i])
+		ili9341Display.ThickRectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3], 3, widhTypes[i])
+		ili9341Display.SetColor(rgb565.RED)
 		ili9341Display.Rectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
 	}
 

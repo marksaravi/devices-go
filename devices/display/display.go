@@ -177,14 +177,19 @@ func (dev *rgbDevice) FillCircle(x, y, radius float64) {
 	}
 }
 
-func (dev *rgbDevice) ThickCircle(x, y, radius float64, width int, widthType WidthType) {
-	rs := radius
+func getThicknessStart(mid float64, width int, widthType WidthType) float64 {
+	from := mid
 	switch widthType {
 	case OUTER_WIDTH:
-		rs = radius + float64(width)
+		from = mid + float64(width)
 	case CENTER_WIDTH:
-		rs = radius + float64(width)/2
+		from = mid + float64(width)/2
 	}
+	return from
+}
+
+func (dev *rgbDevice) ThickCircle(x, y, radius float64, width int, widthType WidthType) {
+	rs := getThicknessStart(radius, width, widthType)
 	for dr := 0; dr < width; dr++ {
 		dev.Circle(x, y, rs-float64(dr))
 	}
@@ -197,6 +202,33 @@ func (dev *rgbDevice) Rectangle(x1, y1, x2, y2 float64) {
 	dev.Line(x1, y2, x1, y1)
 }
 
-func (dev *rgbDevice) FillRectangle(x1, y1, x2, y2 float64) {}
+func (dev *rgbDevice) FillRectangle(x1, y1, x2, y2 float64) {
+	l := math.Round(y2 - y1)
+	dy := float64(1)
+	if l < 0 {
+		dy = -1
+	}
 
-func (dev *rgbDevice) ThickRectangle(x1, y1, x2, y2 float64, width int, widthType WidthType) {}
+	for y := float64(0); y != l; y += dy {
+		dev.Line(x1, y1+y, x2, y1+y)
+	}
+}
+
+func (dev *rgbDevice) ThickRectangle(x1, y1, x2, y2 float64, width int, widthType WidthType) {
+	xs := x1
+	xe := x2
+	if x2 < x1 {
+		xs = x2
+		xe = x1
+	}
+	ys := y1
+	ye := y2
+	if y2 < y1 {
+		ys = y2
+		ye = y1
+	}
+	s := getThicknessStart(0, width, widthType)
+	for dxy := float64(0); dxy < float64(width); dxy++ {
+		dev.Rectangle(xs+s+dxy, ys+s+dxy, xe-s-dxy, ye-s-dxy)
+	}
+}
