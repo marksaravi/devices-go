@@ -1,7 +1,6 @@
 package ili9341
 
 import (
-	"sync"
 	"time"
 
 	"github.com/marksaravi/devices-go/colors/rgb"
@@ -37,7 +36,6 @@ type device struct {
 	conn             spi.Conn
 	pinDC            gpio.PinOut // WriteDataByte/writeCommand
 	pinRST           gpio.PinOut // Reset
-	mu               sync.Mutex
 	segments         []byte
 	isSegmentChanged []bool
 	changedSegment   chan int
@@ -224,12 +222,10 @@ func (dev *device) pixel(x, y int, color rgb565.RGB565) {
 	xoffs := x % segment_width
 	yoffs := y % segment_height
 	i := seg*bytes_per_segments + (yoffs*segment_width+xoffs)*2
-	dev.mu.Lock()
 	rgbcolor := rgb565ToILI9341Color(color)
 	dev.segments[i] = byte(rgbcolor >> 8)
 	dev.segments[i+1] = byte(rgbcolor)
 	dev.isSegmentChanged[seg] = true
-	dev.mu.Unlock()
 }
 
 func rgb565ToILI9341Color(color rgb565.RGB565) rgb565.RGB565 {
