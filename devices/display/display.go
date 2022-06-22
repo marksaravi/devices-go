@@ -142,20 +142,18 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 func (dev *rgbDevice) Circle(x, y, radius float64) {
 	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
 	putpixels := func(xc, yc, dr, d float64) {
-		dev.Pixel(math.Round(xc+d), math.Round(yc+dr))
-		dev.Pixel(math.Round(xc+d), math.Round(yc-dr))
-		dev.Pixel(math.Round(xc+dr), math.Round(yc+d))
-		dev.Pixel(math.Round(xc+dr), math.Round(yc-d))
+		dev.Pixel(xc+d, yc+dr)
+		dev.Pixel(xc+d, yc-dr)
+		dev.Pixel(xc+dr, yc+d)
+		dev.Pixel(xc+dr, yc-d)
 
-		dev.Pixel(math.Round(xc-d), math.Round(yc+dr))
-		dev.Pixel(math.Round(xc-d), math.Round(yc-dr))
-		dev.Pixel(math.Round(xc-dr), math.Round(yc+d))
-		dev.Pixel(math.Round(xc-dr), math.Round(yc-d))
+		dev.Pixel(xc-d, yc+dr)
+		dev.Pixel(xc-d, yc-dr)
+		dev.Pixel(xc-dr, yc+d)
+		dev.Pixel(xc-dr, yc-d)
 	}
-	for dr := float64(0); dr <= radius*0.7; dr += 1 {
-		// r*r = dx*dx+dy+dy
+	for dr := float64(0); dr <= math.Round(radius*0.707); dr += 1 {
 		d := math.Sqrt(radius*radius - dr*dr)
-		// fmt.Println(dx, dy)
 		putpixels(x, y, dr, d)
 	}
 }
@@ -163,24 +161,14 @@ func (dev *rgbDevice) Circle(x, y, radius float64) {
 func (dev *rgbDevice) FillCircle(x, y, radius float64) {
 	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
 	putpixels := func(xc, yc, dr, d float64) {
-		dev.Line(math.Round(xc+d), math.Round(yc+dr), math.Round(xc-d), math.Round(yc+dr))
-		dev.Line(math.Round(xc+d), math.Round(yc-dr), math.Round(xc-d), math.Round(yc-dr))
+		dev.Line(xc+d, yc+dr, xc-d, yc+dr)
+		dev.Line(xc+d, yc-dr, xc-d, yc-dr)
 
-		dev.Line(math.Round(xc+dr), math.Round(yc+d), math.Round(xc-dr), math.Round(yc+d))
-		dev.Line(math.Round(xc+dr), math.Round(yc-d), math.Round(xc-dr), math.Round(yc-d))
-		// dev.Line(math.Round(xc+d), math.Round(yc-dr))
-		// dev.Line(math.Round(xc+dr), math.Round(yc+d))
-		// dev.Line(math.Round(xc+dr), math.Round(yc-d))
-
-		// dev.Line(math.Round(xc-d), math.Round(yc+dr))
-		// dev.Line(math.Round(xc-d), math.Round(yc-dr))
-		// dev.Line(math.Round(xc-dr), math.Round(yc+d))
-		// dev.Line(math.Round(xc-dr), math.Round(yc-d))
+		dev.Line(xc+dr, yc+d, xc-dr, yc+d)
+		dev.Line(xc+dr, yc-d, xc-dr, yc-d)
 	}
-	for dr := float64(0); dr <= math.Ceil(radius*0.71); dr += 1 {
-		// r*r = dx*dx+dy+dy
+	for dr := float64(0); dr <= math.Ceil(radius*0.707); dr += 1 {
 		d := math.Sqrt(radius*radius - dr*dr)
-		// fmt.Println(dx, dy)
 		putpixels(x, y, dr, d)
 	}
 }
