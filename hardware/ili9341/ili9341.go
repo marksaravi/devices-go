@@ -3,8 +3,7 @@ package ili9341
 import (
 	"time"
 
-	"github.com/marksaravi/devices-go/colors/rgb"
-	"github.com/marksaravi/devices-go/colors/rgb565"
+	"github.com/marksaravi/devices-go/colors"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/spi"
 )
@@ -68,8 +67,8 @@ func (dev *device) Update() {
 	}
 }
 
-func (dev *device) Pixel(x, y int, color rgb.RGB) {
-	c, _ := rgb.ToRGB565(color)
+func (dev *device) Pixel(x, y int, color colors.Color) {
+	c, _ := colors.ToRGB565(color)
 	dev.pixel(x, y, c)
 }
 
@@ -212,7 +211,7 @@ func (dev *device) reset() {
 	time.Sleep(time.Millisecond * SLEEP_MS)
 }
 
-func (dev *device) pixel(x, y int, color rgb565.RGB565) {
+func (dev *device) pixel(x, y int, color colors.RGB565) {
 	if x < 0 || y < 0 || x >= lcd_width || y >= lcd_height {
 		return
 	}
@@ -228,10 +227,10 @@ func (dev *device) pixel(x, y int, color rgb565.RGB565) {
 	dev.isSegmentChanged[seg] = true
 }
 
-func rgb565ToILI9341Color(color rgb565.RGB565) rgb565.RGB565 {
-	blue := color & rgb565.BLUE
-	green := (color & rgb565.GREEN) >> 5
-	red := (color & rgb565.RED) >> 11
+func rgb565ToILI9341Color(color colors.RGB565) colors.RGB565 {
+	blue := color & colors.RGB565_BLUE
+	green := (color & colors.RGB565_GREEN) >> 5
+	red := (color & colors.RGB565_RED) >> 11
 	return (red) | (green << 5) | (blue << 11)
 }
 

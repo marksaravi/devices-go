@@ -3,7 +3,7 @@ package display
 import (
 	"math"
 
-	"github.com/marksaravi/devices-go/colors/rgb"
+	"github.com/marksaravi/devices-go/colors"
 )
 
 type WidthType int
@@ -16,7 +16,7 @@ const (
 
 type pixelDevice interface {
 	Update()
-	Pixel(x, y int, color rgb.RGB)
+	Pixel(x, y int, color colors.Color)
 	ScreenWidth() int
 	ScreenHeight() int
 }
@@ -27,8 +27,8 @@ type RGBDisplay interface {
 	ScreenHeight() int
 
 	// Color
-	SetBackgroundColor(rgb.RGB)
-	SetColor(rgb.RGB)
+	SetBackgroundColor(colors.Color)
+	SetColor(colors.Color)
 
 	// Drawing methods
 	Clear()
@@ -57,8 +57,8 @@ type RGBDisplay interface {
 
 type rgbDevice struct {
 	pixeldev pixelDevice
-	color    rgb.RGB
-	bgColor  rgb.RGB
+	color    colors.Color
+	bgColor  colors.Color
 }
 
 func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
@@ -79,11 +79,11 @@ func (d *rgbDevice) ScreenHeight() int {
 	return d.pixeldev.ScreenHeight()
 }
 
-func (d *rgbDevice) SetBackgroundColor(color rgb.RGB) {
+func (d *rgbDevice) SetBackgroundColor(color colors.Color) {
 	d.bgColor = color
 }
 
-func (d *rgbDevice) SetColor(color rgb.RGB) {
+func (d *rgbDevice) SetColor(color colors.Color) {
 	d.color = color
 }
 
