@@ -37,12 +37,13 @@ func main() {
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.GREEN))
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.FORESTGREEN))
 	tests := []func(display.RGBDisplay){
+		drawLines,
 		drawCircle,
 		drawFillCircle,
-		// drawThickCircle,
-		// drawRectangle,
-		// drawFillRectangle,
-		// drawThickRectangle,
+		drawThickCircle,
+		drawRectangle,
+		drawFillRectangle,
+		drawThickRectangle,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
