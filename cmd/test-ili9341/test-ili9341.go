@@ -37,7 +37,8 @@ func main() {
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.GREEN))
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.FORESTGREEN))
 	tests := []func(display.RGBDisplay){
-		drawThickCircle,
+		drawCircle,
+		// drawThickCircle,
 		// drawRectangle,
 		// drawFillRectangle,
 		// drawThickRectangle,
@@ -56,7 +57,7 @@ func main() {
 	// testShapes(ili9341Display)
 }
 
-func testLines(ili9341Display display.RGBDisplay) {
+func drawLines(ili9341Display display.RGBDisplay) {
 	xmax := float64(ili9341Display.ScreenWidth() - 1)
 	ymax := float64(ili9341Display.ScreenHeight() - 1)
 	xc := xmax / 2
@@ -75,6 +76,21 @@ func testLines(ili9341Display display.RGBDisplay) {
 		ili9341Display.Line(xc, yc, xc+x, yc+y)
 	}
 
+}
+
+func drawCircle(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2.1
+	xyc := [N][]float64{{xc, yc, radius}, {xc, yc, radius * .75}, {xc, yc, radius * .45}}
+	colorset := [N]colors.Color{colors.ROYALBLUE, colors.SILVER, colors.MEDIUMSPRINGGREEN}
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.Circle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
 }
 
 func drawFillCircle(ili9341Display display.RGBDisplay) {
