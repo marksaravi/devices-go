@@ -23,3 +23,16 @@ func TestIsPointInsideArc(t *testing.T) {
 		t.Errorf("(%f, %f) are not in %f, %f\n", x, y, sAngle, eAngle)
 	}
 }
+
+func TestSector(t *testing.T) {
+	points := [][2]float64{{1, 0}, {0.7, 0.7}, {0, 1}, {-0.7, 0.7}, {-1, 0}, {-0.7, -0.7}, {0, -1}, {0.7, -0.7}}
+	want := []int{0, 0, 1, 1, 2, 2, 3, 3}
+	for i := 0; i < len(points); i++ {
+		x := points[i][0]
+		y := points[i][1]
+		got := getSector(x, y)
+		if got != int(want[i]) {
+			t.Errorf("point (%f,%f) is expected to be in sector %d but was in %d\n", x, y, want[i], got)
+		}
+	}
+}

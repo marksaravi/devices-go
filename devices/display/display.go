@@ -144,6 +144,19 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 	}
 }
 
+func getSector(x, y float64) int {
+	if x > 0 && y >= 0 {
+		return 0
+	}
+	if x <= 0 && y > 0 {
+		return 1
+	}
+	if x < 0 && y <= 0 {
+		return 2
+	}
+	return 3
+}
+
 func isInside(x, y, startAngle, endAngle float64) bool {
 	return false
 }
