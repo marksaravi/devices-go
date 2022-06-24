@@ -37,13 +37,14 @@ func main() {
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.GREEN))
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.FORESTGREEN))
 	tests := []func(display.RGBDisplay){
-		drawLines,
-		drawCircle,
-		drawFillCircle,
-		drawThickCircle,
-		drawRectangle,
-		drawFillRectangle,
-		drawThickRectangle,
+		drawArc,
+		// drawLines,
+		// drawCircle,
+		// drawFillCircle,
+		// drawThickCircle,
+		// drawRectangle,
+		// drawFillRectangle,
+		// drawThickRectangle,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
@@ -121,6 +122,16 @@ func drawThickCircle(ili9341Display display.RGBDisplay) {
 		ili9341Display.ThickCircle(xyc[i][0], xyc[i][1], xyc[i][2], width, widhTypes[i])
 		ili9341Display.SetColor(colors.RED)
 		ili9341Display.Circle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
+}
+
+func drawArc(ili9341Display display.RGBDisplay) {
+	const N int = 1
+	xyc := [N][]float64{{160, 120, 100, math.Pi / 180 * 45, math.Pi / 180 * 135}}
+	colorset := [N]colors.Color{colors.BLACK}
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
 	}
 }
 

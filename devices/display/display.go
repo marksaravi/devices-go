@@ -1,6 +1,7 @@
 package display
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/marksaravi/devices-go/colors"
@@ -39,7 +40,7 @@ type RGBDisplay interface {
 	FillRectangle(x1, y1, x2, y2 float64)
 	ThickRectangle(x1, y1, x2, y2 float64, width int, widthType WidthType)
 
-	// Arc(x, y, radius, startAngle, endAngle, width float64)
+	Arc(x, y, radius, startAngle, endAngle float64)
 	Circle(x, y, radius float64)
 	ThickCircle(x, y, radius float64, width int, widthType WidthType)
 	FillCircle(x, y, radius float64)
@@ -140,6 +141,42 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 			err = err + dx
 			ys = ys + sy
 		}
+	}
+}
+
+func isInside(x, y, startAngle, endAngle float64) bool {
+	return false
+}
+
+func (dev *rgbDevice) Arc(x, y, radius, startAngle, endAngle float64) {
+	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+	sAngle := math.Mod(startAngle, math.Pi*2)
+	eAngle := math.Mod(endAngle, math.Pi*2)
+	if startAngle > endAngle {
+		t := sAngle
+		sAngle = eAngle
+		eAngle = t
+	}
+	xs := math.Cos(sAngle)
+	xe := math.Cos(eAngle)
+	fmt.Printf("%f, %f\n", xs, xe)
+
+	putpixels := func(xc, yc, dx, dy float64) {
+		dev.Pixel(xc+dy, yc+dx)
+		dev.Pixel(xc+dy, yc-dx)
+		dev.Pixel(xc+dx, yc+dy)
+		dev.Pixel(xc+dx, yc-dy)
+
+		dev.Pixel(xc-dy, yc+dx)
+		dev.Pixel(xc-dy, yc-dx)
+		dev.Pixel(xc-dx, yc+dy)
+		dev.Pixel(xc-dx, yc-dy)
+	}
+
+	var dy float64 = radius
+	for dx := float64(0); dx < dy; dx += 1 {
+		dy = math.Sqrt(radius*radius - dx*dx)
+		putpixels(x, y, dx, dy)
 	}
 }
 
