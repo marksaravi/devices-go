@@ -156,9 +156,11 @@ func (dev *rgbDevice) Circle(x, y, radius float64) {
 		dev.Pixel(xc-dr, yc+d)
 		dev.Pixel(xc-dr, yc-d)
 	}
-	for dr := float64(0); dr <= math.Round(radius*0.707); dr += 1 {
-		d := math.Sqrt(radius*radius - dr*dr)
-		putpixels(x, y, dr, d)
+
+	var dy float64 = radius
+	for dx := float64(0); dx < dy; dx += 1 {
+		dy = math.Sqrt(radius*radius - dx*dx)
+		putpixels(x, y, dx, dy)
 	}
 }
 

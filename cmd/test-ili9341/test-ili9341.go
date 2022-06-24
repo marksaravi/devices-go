@@ -38,6 +38,7 @@ func main() {
 	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.FORESTGREEN))
 	tests := []func(display.RGBDisplay){
 		drawCircle,
+		drawFillCircle,
 		// drawThickCircle,
 		// drawRectangle,
 		// drawFillRectangle,
@@ -86,7 +87,7 @@ func drawCircle(ili9341Display display.RGBDisplay) {
 	yc := ymax / 2
 	radius := ymax / 2.1
 	xyc := [N][]float64{{xc, yc, radius}, {xc, yc, radius * .75}, {xc, yc, radius * .45}}
-	colorset := [N]colors.Color{colors.ROYALBLUE, colors.SILVER, colors.MEDIUMSPRINGGREEN}
+	colorset := [N]colors.Color{colors.BLACK, colors.DARKBLUE, colors.DARKGREEN}
 	for i := 0; i < N; i++ {
 		ili9341Display.SetColor(colorset[i])
 		ili9341Display.Circle(xyc[i][0], xyc[i][1], xyc[i][2])
@@ -94,29 +95,13 @@ func drawCircle(ili9341Display display.RGBDisplay) {
 }
 
 func drawFillCircle(ili9341Display display.RGBDisplay) {
-	xmax := float64(ili9341Display.ScreenWidth() - 1)
-	ymax := float64(ili9341Display.ScreenHeight() - 1)
-	xc := xmax / 2
-	yc := ymax / 2
-	radius := ymax / 2.1
-	ili9341Display.SetBackgroundColor(colors.WHITE)
-	ili9341Display.Clear()
-	ili9341Display.SetColor(colors.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.OUTER_WIDTH)
-	ili9341Display.SetColor(colors.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-
-	radius = radius * .75
-	ili9341Display.SetColor(colors.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.CENTER_WIDTH)
-	ili9341Display.SetColor(colors.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-	radius = radius * .75
-	ili9341Display.SetColor(colors.GREEN)
-	ili9341Display.ThickCircle(xc, yc, radius, 10, display.INNER_WIDTH)
-	ili9341Display.SetColor(colors.BLUE)
-	ili9341Display.Circle(xc, yc, radius)
-
+	const N int = 3
+	xyc := [N][]float64{{30, 30, 45}, {160, 120, 115}, {400, 400, 250}}
+	colorset := [N]colors.Color{colors.BLACK, colors.DARKBLUE, colors.DARKGREEN}
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.FillCircle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
 }
 
 func drawThickCircle(ili9341Display display.RGBDisplay) {
