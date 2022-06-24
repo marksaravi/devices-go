@@ -1,7 +1,6 @@
 package display
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/marksaravi/devices-go/colors"
@@ -9,6 +8,12 @@ import (
 
 type WidthType int
 
+const (
+	DEG90  = math.Pi / 2
+	DEG180 = DEG90 * 2
+	DEG270 = DEG90 * 3
+	DEG360 = DEG90 * 4
+)
 const (
 	INNER_WIDTH  WidthType = 0
 	OUTER_WIDTH  WidthType = 1
@@ -144,52 +149,87 @@ func (d *rgbDevice) Line(x1, y1, x2, y2 float64) {
 	}
 }
 
-func getSector(x, y float64) int {
-	if x > 0 && y >= 0 {
-		return 0
+func getSectors(startAngle, endAngle float64) (int, int) {
+	s1 := int(startAngle * 2 / math.Pi)
+	s2 := int(endAngle * 2 / math.Pi)
+	return s1, s2
+}
+
+// func (dev *rgbDevice) Arc(xc, yc, radius, startAngle, endAngle float64) {
+// 	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+
+// 	sAngle := math.Mod(startAngle, math.Pi*2)
+// 	eAngle := math.Mod(endAngle, math.Pi*2)
+// 	radiusI := int(math.Round(radius))
+// 	xs := int(math.Round(float64(radiusI) * math.Cos(sAngle)))
+// 	xe := int(math.Round(float64(radiusI) * math.Cos(eAngle)))
+
+// 	signSY := float64(1)
+// 	if sAngle > math.Pi && sAngle < math.Pi*2 {
+// 		signSY = -1
+// 	}
+// 	signEY := float64(1)
+// 	if eAngle > math.Pi && eAngle < math.Pi*2 {
+// 		signEY = -1
+// 	}
+
+// 	dx := -1
+// 	x := xs
+
+// 	radius2 := radius * radius
+// 	signY := signSY
+// 	for true {
+// 		y := math.Sqrt(radius2-float64(x*x)) * signY
+// 		if x == xe && signY == signEY {
+// 			break
+// 		}
+// 		if x == 0 {
+// 		}
+// 		x += dx
+// 	}
+// }
+func (dev *rgbDevice) Arc(xc, yc, radius, startAngle, endAngle float64) {
+	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+
+	getSignY := func(angle float64) int {
+		if angle >= 0 && angle < DEG180 {
+			return 1
+		}
+		return -1
 	}
-	if x <= 0 && y > 0 {
+
+	getIncX := func(angle float64) int {
+		if angle >= 0 && angle < DEG180 {
+			return -1
+		}
 		return 1
 	}
-	if x < 0 && y <= 0 {
-		return 2
-	}
-	return 3
-}
 
-func isInside(x, y, startAngle, endAngle float64) bool {
-	return false
-}
+	sY := getSignY(startAngle)
+	signEndY := getSignY(endAngle)
 
-func (dev *rgbDevice) Arc(x, y, radius, startAngle, endAngle float64) {
-	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
-	sAngle := math.Mod(startAngle, math.Pi*2)
-	eAngle := math.Mod(endAngle, math.Pi*2)
-	if startAngle > endAngle {
-		t := sAngle
-		sAngle = eAngle
-		eAngle = t
-	}
-	xs := math.Cos(sAngle)
-	xe := math.Cos(eAngle)
-	fmt.Printf("%f, %f\n", xs, xe)
+	r := int(math.Round(radius))
+	xs := int(math.Round(float64(r) * math.Cos(startAngle)))
+	xe := int(math.Round(float64(r) * math.Cos(endAngle)))
 
-	putpixels := func(xc, yc, dx, dy float64) {
-		dev.Pixel(xc+dy, yc+dx)
-		dev.Pixel(xc+dy, yc-dx)
-		dev.Pixel(xc+dx, yc+dy)
-		dev.Pixel(xc+dx, yc-dy)
-
-		dev.Pixel(xc-dy, yc+dx)
-		dev.Pixel(xc-dy, yc-dx)
-		dev.Pixel(xc-dx, yc+dy)
-		dev.Pixel(xc-dx, yc-dy)
-	}
-
-	var dy float64 = radius
-	for dx := float64(0); dx < dy; dx += 1 {
-		dy = math.Sqrt(radius*radius - dx*dx)
-		putpixels(x, y, dx, dy)
+	x := xs
+	dx := getIncX(startAngle)
+	r2 := r * r
+	for true {
+		y := int(math.Round(math.Sqrt(float64(r2)-float64(x*x)))) * sY
+		dev.pixeldev.Pixel(int(math.Round(xc))+x, int(math.Round(yc))+y, dev.color)
+		if x == xe && sY == signEndY {
+			break
+		}
+		x += dx
+		if x == r {
+			sY = 1
+			dx = -1
+		}
+		if x == -r {
+			sY = -1
+			dx = 1
+		}
 	}
 }
 

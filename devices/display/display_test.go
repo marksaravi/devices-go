@@ -6,33 +6,27 @@ import (
 )
 
 func TestIsPointInsideArc(t *testing.T) {
+}
+
+func TestGetSectors(t *testing.T) {
 	toRad := func(a float64) float64 {
 		return math.Pi / 180 * a
 	}
-	const RADIUS float64 = 10
-	XY := func(angle float64) (float64, float64) {
-		x := RADIUS * math.Cos(toRad(angle))
-		y := math.Sqrt(RADIUS*RADIUS - x*x)
-		return x, y
-	}
 
-	sAngle := float64(0)
-	eAngle := float64(30)
-	x, y := XY(15)
-	if !isInside(x, y, toRad(sAngle), toRad(eAngle)) {
-		t.Errorf("(%f, %f) are not in %f, %f\n", x, y, sAngle, eAngle)
+	angles := [][2]int{{0, 15}, {55, 200}, {330, 359}, {330, 0}, {330, 15}}
+	want := [][2]int{
+		{0, 0},
+		{0, 2},
+		{3, 3},
+		{3, 0},
+		{3, 0},
 	}
-}
-
-func TestSector(t *testing.T) {
-	points := [][2]float64{{1, 0}, {0.7, 0.7}, {0, 1}, {-0.7, 0.7}, {-1, 0}, {-0.7, -0.7}, {0, -1}, {0.7, -0.7}}
-	want := []int{0, 0, 1, 1, 2, 2, 3, 3}
-	for i := 0; i < len(points); i++ {
-		x := points[i][0]
-		y := points[i][1]
-		got := getSector(x, y)
-		if got != int(want[i]) {
-			t.Errorf("point (%f,%f) is expected to be in sector %d but was in %d\n", x, y, want[i], got)
+	for i := 0; i < len(angles); i++ {
+		sa := toRad(float64(angles[i][0]))
+		ea := toRad(float64(angles[i][1]))
+		s1, s2 := getSectors(sa, ea)
+		if s1 != want[i][0] || s2 != want[i][1] {
+			t.Errorf("%d,%d sectors are not %d,%d", angles[i][0], angles[i][1], s1, s2)
 		}
 	}
 }

@@ -127,7 +127,7 @@ func drawThickCircle(ili9341Display display.RGBDisplay) {
 
 func drawArc(ili9341Display display.RGBDisplay) {
 	const N int = 1
-	xyc := [N][]float64{{160, 120, 100, math.Pi / 180 * 45, math.Pi / 180 * 135}}
+	xyc := [N][]float64{{160, 120, 100, math.Pi / 180 * 135, math.Pi / 180 * 350}}
 	colorset := [N]colors.Color{colors.BLACK}
 	for i := 0; i < N; i++ {
 		ili9341Display.SetColor(colorset[i])
