@@ -163,22 +163,20 @@ type arcSector struct {
 }
 
 func isInsideSector0(x, y, xs, ys, xe, ye float64) bool {
-	return x <= xs && x >= xe && y >= ys && y <= ye
+	return x <= xs && x > xe && y >= ys && y < ye
 }
 
 func isInsideSector1(x, y, xs, ys, xe, ye float64) bool {
-	// return x <= xs && x >= xe && y >= ys && y <= ye
-	return false
+	return x <= xs && x > xe && y <= ys && y > ye
 }
 
 func isInsideSector2(x, y, xs, ys, xe, ye float64) bool {
-	// return x >= xs && x <= xe && y <= ys && y >= ye
-	return false
+	return x >= xs && x < xe && y <= ys && y > ye
 }
 
 func isInsideSector3(x, y, xs, ys, xe, ye float64) bool {
-	// return x >= xs && x <= xe && y >= ys && y <= ye
-	return false
+	// fmt.Printf("%6.2f, %6.2f,%6.2f, %6.2f,%6.2f, %6.2f, %v\n", x, xs, xe, y, ys, ye, x <= xs && x > xe && y >= ys && y < ye)
+	return x >= xs && x < xe && y >= ys && y < ye
 }
 
 func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
