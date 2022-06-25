@@ -138,7 +138,7 @@ func drawArc(ili9341Display display.RGBDisplay) {
 		{160, 120, 90, utils.ToRad(15 + 180), utils.ToRad(45 + 180)},
 		{160, 120, 95, utils.ToRad(45 + 180), utils.ToRad(15 + 180)},
 		{160, 120, 100, utils.ToRad(15 + 270), utils.ToRad(45 + 270)},
-		{160, 120, 105, utils.ToRad(45 + 270), utils.ToRad(15 + 270)},
+		{160, 120, 105, utils.ToRad(315), utils.ToRad(285)},
 	}
 	colorset := [N]colors.Color{
 		colors.RED,
@@ -154,7 +154,7 @@ func drawArc(ili9341Display display.RGBDisplay) {
 		colors.BLUE,
 		colors.BLACK,
 	}
-	for i := 0; i < N; i++ {
+	for i := 11; i < N; i++ {
 		ili9341Display.SetColor(colorset[i])
 		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
 	}

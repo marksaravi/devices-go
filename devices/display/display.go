@@ -187,13 +187,14 @@ func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
 		3: make([]arcSector, 0),
 	}
 	PI2 := math.Pi / 2
-	// sectors := make([]arcSector, 5)
-	from := startAngle
-	to := endAngle
+	from := math.Mod(startAngle, math.Pi*2)
+	to := math.Mod(endAngle, math.Pi*2)
+	fmt.Println("from: ", utils.ToDeg(from), " ,to: ", utils.ToDeg(to))
 	if to < from {
 		to += math.Pi * 2
 	}
-	for sec := 0; sec < 5; sec++ {
+	angle := from
+	for sec := 0; angle < to; sec++ {
 		sector := arcSector{
 			ok: false,
 			xs: 0,
@@ -202,25 +203,52 @@ func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
 			ye: 0,
 		}
 		s := float64(sec) * PI2
-		e := s + PI2
-		if from >= s && from < e {
-			fmt.Print("from: ", utils.ToDeg(from))
+		e := float64(sec+1) * PI2
+		if e >= to {
+			e = to
+		}
+		fmt.Println("s: ", utils.ToDeg(s), " ,e: ", utils.ToDeg(e))
+		if angle >= s && angle < e {
+			fmt.Println("angle: ", utils.ToDeg(angle))
 			sector.ok = true
-			sector.xs = radius * math.Cos(from)
-			sector.ys = radius * math.Sin(from)
-			if to >= s && to < e {
-				fmt.Println(", to: ", utils.ToDeg(to))
-				sector.xe = radius * math.Cos(to)
-				sector.ye = radius * math.Sin(to)
-			} else {
-				from = e
-				fmt.Println(", to: ", utils.ToDeg(from))
-				sector.xe = radius * math.Cos(from)
-				sector.ye = radius * math.Sin(from)
-			}
+			sector.xs = radius * math.Cos(angle)
+			sector.ys = radius * math.Sin(angle)
+			sector.xe = radius * math.Cos(e)
+			sector.ye = radius * math.Sin(e)
+			angle = e
 			sectorsmap[sec%4] = append(sectorsmap[sec%4], sector)
 		}
 	}
+	// from := startAngle
+	// to := endAngle
+	// for sec := 0; sec < 5; sec++ {
+	// 	sector := arcSector{
+	// 		ok: false,
+	// 		xs: 0,
+	// 		ys: 0,
+	// 		xe: 0,
+	// 		ye: 0,
+	// 	}
+	// 	s := float64(sec) * PI2
+	// 	e := s + PI2
+	// 	if from >= s && from < e {
+	// 		fmt.Print("from: ", utils.ToDeg(from))
+	// 		sector.ok = true
+	// 		sector.xs = radius * math.Cos(from)
+	// 		sector.ys = radius * math.Sin(from)
+	// 		if to >= s && to < e && to >= from {
+	// 			fmt.Println(", to: ", utils.ToDeg(to))
+	// 			sector.xe = radius * math.Cos(to)
+	// 			sector.ye = radius * math.Sin(to)
+	// 		} else {
+	// 			from = e
+	// 			fmt.Println(", to: ", utils.ToDeg(from))
+	// 			sector.xe = radius * math.Cos(from)
+	// 			sector.ye = radius * math.Sin(from)
+	// 		}
+	//
+	// 	}
+	// }
 	showSectors(sectorsmap)
 	return sectorsmap
 }
