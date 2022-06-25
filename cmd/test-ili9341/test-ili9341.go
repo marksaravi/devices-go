@@ -125,10 +125,24 @@ func drawThickCircle(ili9341Display display.RGBDisplay) {
 }
 
 func drawArc(ili9341Display display.RGBDisplay) {
-	const N int = 1
+	const N int = 6
 	// sa := float64(270)
-	xyc := [N][]float64{{160, 120, 100, utils.ToRad(45), utils.ToRad(15)}}
-	colorset := [N]colors.Color{colors.BLACK}
+	xyc := [N][]float64{
+		{160, 120, 50, utils.ToRad(0), utils.ToRad(90)},
+		{160, 120, 60, utils.ToRad(90), utils.ToRad(180)},
+		{160, 120, 70, utils.ToRad(180), utils.ToRad(270)},
+		{160, 120, 80, utils.ToRad(270), utils.ToRad(360)},
+		{160, 120, 90, utils.ToRad(15), utils.ToRad(45)},
+		{160, 120, 100, utils.ToRad(45), utils.ToRad(15)},
+	}
+	colorset := [N]colors.Color{
+		colors.RED,
+		colors.YELLOW,
+		colors.BLUE,
+		colors.GREEN,
+		colors.PURPLE,
+		colors.BLACK,
+	}
 	for i := 0; i < N; i++ {
 		ili9341Display.SetColor(colorset[i])
 		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
