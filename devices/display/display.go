@@ -181,16 +181,22 @@ func isInsideSector3(x, y, xs, ys, xe, ye float64) bool {
 	return false
 }
 
-func findArcSectors(startAngle, endAngle, radius float64) []arcSector {
+func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
+	var sectorsmap map[int][]arcSector = map[int][]arcSector{
+		0: make([]arcSector, 0),
+		1: make([]arcSector, 0),
+		2: make([]arcSector, 0),
+		3: make([]arcSector, 0),
+	}
 	PI2 := math.Pi / 2
-	sectors := make([]arcSector, 5)
+	// sectors := make([]arcSector, 5)
 	from := startAngle
 	to := endAngle
 	if to < from {
 		to += math.Pi * 2
 	}
 	for sec := 0; sec < 5; sec++ {
-		sectors[sec] = arcSector{
+		sector := arcSector{
 			ok: false,
 			xs: 0,
 			ys: 0,
@@ -201,22 +207,24 @@ func findArcSectors(startAngle, endAngle, radius float64) []arcSector {
 		e := s + PI2
 		if from >= s && from < e {
 			fmt.Print("from: ", utils.ToDeg(from))
-			sectors[sec].ok = true
-			sectors[sec].xs = radius * math.Cos(from)
-			sectors[sec].ys = radius * math.Sin(from)
+			sector.ok = true
+			sector.xs = radius * math.Cos(from)
+			sector.ys = radius * math.Sin(from)
 			if to >= s && to < e {
 				fmt.Println(", to: ", utils.ToDeg(to))
-				sectors[sec].xe = radius * math.Cos(to)
-				sectors[sec].ye = radius * math.Sin(to)
+				sector.xe = radius * math.Cos(to)
+				sector.ye = radius * math.Sin(to)
 			} else {
 				from = e
 				fmt.Println(", to: ", utils.ToDeg(from))
-				sectors[sec].xe = radius * math.Cos(from)
-				sectors[sec].ye = radius * math.Sin(from)
+				sector.xe = radius * math.Cos(from)
+				sector.ye = radius * math.Sin(from)
 			}
+			sectorsmap[sec%4] = append(sectorsmap[sec%4], sector)
 		}
 	}
-	return sectors
+	showSectors(sectorsmap)
+	return sectorsmap
 }
 
 func isInSector(sector int, fromAngle, toAngle float64) (xs, ys, xe, ye float64, ok bool) {
@@ -243,40 +251,51 @@ func (dev *rgbDevice) putpixel(sector int, xc, yc, x, y float64, s arcSector) {
 	}
 }
 
-func showSectors(sectors []arcSector) {
-	for i := 0; i < 5; i++ {
-		s := sectors[i]
-		fmt.Printf("%d(%v): xs: %5.3f, ys: %5.3f, xe: %5.3f, ye: %5.3f\n", i, s.ok, s.xs, s.ys, s.xe, s.ye)
+func showSectors(sectors map[int][]arcSector) {
+	for sec := 0; sec < 4; sec++ {
+		sectors := sectors[sec]
+		for i := 0; i < len(sectors); i++ {
+			s := sectors[i]
+			fmt.Printf("%d(%v): xs: %5.3f, ys: %5.3f, xe: %5.3f, ye: %5.3f\n", sec, s.ok, s.xs, s.ys, s.xe, s.ye)
+		}
+
 	}
 }
 
 func (dev *rgbDevice) Arc(xc, yc, radius, startAngle, endAngle float64) {
+	signs := [4][2]float64{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}}
 	iradius := math.Round(radius)
-	sectors := findArcSectors(startAngle, endAngle, iradius)
-	showSectors(sectors)
+	sectormaps := findArcSectors(startAngle, endAngle, iradius)
 	var iradius2 = iradius * iradius
 	var l1 float64 = 0
 	for l1 = 0; true; l1 += 1 {
 		l2 := math.Sqrt(iradius2 - l1*l1)
-		if sectors[0].ok {
-			dev.putpixel(0, xc, yc, l1, l2, sectors[0])
-			dev.putpixel(0, xc, yc, l2, l1, sectors[0])
+		for sector := 0; sector < 4; sector++ {
+			sectors := sectormaps[sector]
+			for i := 0; i < len(sectors); i++ {
+				if sectors[i].ok {
+					dev.putpixel(sector, xc, yc, signs[sector][0]*l1, signs[sector][1]*l2, sectors[i])
+					dev.putpixel(sector, xc, yc, signs[sector][0]*l2, signs[sector][1]*l1, sectors[i])
+				}
+			}
 		}
+		// if sectors[0].ok {
+		// 	dev.putpixel(0, xc, yc, l1, l2, sectors[0])
+		// 	dev.putpixel(0, xc, yc, l2, l1, sectors[0])
+		// }
+		// if sectors[1].ok {
+		// 	dev.putpixel(1, xc, yc, -l1, l2, sectors[1])
+		// 	dev.putpixel(1, xc, yc, -l2, l1, sectors[1])
+		// }
+		// if sectors[2].ok {
+		// 	dev.putpixel(2, xc, yc, -l1, -l2, sectors[2])
+		// 	dev.putpixel(2, xc, yc, -l2, -l1, sectors[2])
+		// }
+		// if sectors[3].ok {
+		// 	dev.putpixel(3, xc, yc, l1, -l2, sectors[3])
+		// 	dev.putpixel(3, xc, yc, l2, -l1, sectors[3])
+		// }
 
-		if sectors[1].ok {
-			dev.putpixel(1, xc, yc, -l1, l2, sectors[1])
-			dev.putpixel(1, xc, yc, -l2, l1, sectors[1])
-		}
-
-		if sectors[2].ok {
-			dev.putpixel(2, xc, yc, -l1, -l2, sectors[2])
-			dev.putpixel(2, xc, yc, -l2, -l1, sectors[2])
-		}
-		if sectors[3].ok {
-			dev.putpixel(3, xc, yc, l1, -l2, sectors[3])
-			dev.putpixel(3, xc, yc, l2, -l1, sectors[3])
-
-		}
 		if l1 >= l2 {
 			break
 		}
