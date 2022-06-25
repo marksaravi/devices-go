@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/marksaravi/devices-go/colors"
+	"github.com/marksaravi/devices-go/utils"
 )
 
 type WidthType int
@@ -157,7 +158,6 @@ func getSectors(startAngle, endAngle float64) (int, int) {
 }
 
 type arcSector struct {
-	sector         int
 	ok             bool
 	xs, xe, ys, ye float64
 }
@@ -167,57 +167,64 @@ func isInsideSector0(x, y, xs, ys, xe, ye float64) bool {
 }
 
 func isInsideSector1(x, y, xs, ys, xe, ye float64) bool {
-	return x <= xs && x >= xe && y <= ys && y >= ye
+	// return x <= xs && x >= xe && y >= ys && y <= ye
+	return false
 }
 
 func isInsideSector2(x, y, xs, ys, xe, ye float64) bool {
-	return x >= xs && x <= xe && y <= ys && y >= ye
+	// return x >= xs && x <= xe && y <= ys && y >= ye
+	return false
 }
 
 func isInsideSector3(x, y, xs, ys, xe, ye float64) bool {
-	return x >= xs && x <= xe && y >= ys && y <= ye
+	// return x >= xs && x <= xe && y >= ys && y <= ye
+	return false
 }
 
 func findArcSectors(startAngle, endAngle, radius float64) []arcSector {
-	sectors := make([]arcSector, 4)
-	for sector := 0; sector < 4; sector++ {
-		sectors[sector].sector = sector
-		sectors[sector].ok = true
-		sxs, sys, sxe, sye, sok := isInSector(sector, startAngle)
-		exs, eys, exe, eye, eok := isInSector(sector, endAngle)
-		if sok && eok {
-			sectors[sector].xs = sxs
-			sectors[sector].ys = sys
-			sectors[sector].xe = exs
-			sectors[sector].ye = eys
-		} else if sok {
-			sectors[sector].xs = sxs
-			sectors[sector].ys = sys
-			sectors[sector].xe = sxe
-			sectors[sector].ye = sye
-		} else if eok {
-			sectors[sector].xs = exs
-			sectors[sector].ys = eys
-			sectors[sector].xe = exe
-			sectors[sector].ye = eye
-		} else {
-			sectors[sector].ok = false
+	PI2 := math.Pi / 2
+	sectors := make([]arcSector, 5)
+	from := startAngle
+	to := endAngle
+	if to < from {
+		to += math.Pi * 2
+	}
+	for sec := 0; sec < 5; sec++ {
+		sectors[sec] = arcSector{
+			ok: false,
+			xs: 0,
+			ys: 0,
+			xe: 0,
+			ye: 0,
 		}
-		sectors[sector].xs *= radius
-		sectors[sector].ys *= radius
-		sectors[sector].xe *= radius
-		sectors[sector].ye *= radius
+		s := float64(sec) * PI2
+		e := s + PI2
+		if from >= s && from < e {
+			fmt.Print("from: ", utils.ToDeg(from))
+			sectors[sec].ok = true
+			sectors[sec].xs = radius * math.Cos(from)
+			sectors[sec].ys = radius * math.Sin(from)
+			if to >= s && to < e {
+				fmt.Println(", to: ", utils.ToDeg(to))
+				sectors[sec].xe = radius * math.Cos(to)
+				sectors[sec].ye = radius * math.Sin(to)
+			} else {
+				from = e
+				fmt.Println(", to: ", utils.ToDeg(from))
+				sectors[sec].xe = radius * math.Cos(from)
+				sectors[sec].ye = radius * math.Sin(from)
+			}
+		}
 	}
 	return sectors
 }
 
-func isInSector(sector int, angle float64) (xs, ys, xe, ye float64, ok bool) {
-	insector := int(math.Floor(angle * 2 / math.Pi))
-	xs = math.Cos(angle)
-	ys = math.Sin(angle)
-	sectorEndAngle := (float64(insector) + 1) * math.Pi / 2
-	xe = math.Cos(sectorEndAngle)
-	ye = math.Sin(sectorEndAngle)
+func isInSector(sector int, fromAngle, toAngle float64) (xs, ys, xe, ye float64, ok bool) {
+	insector := int(math.Floor(fromAngle * 2 / math.Pi))
+	xs = math.Cos(fromAngle)
+	ys = math.Sin(fromAngle)
+	xe = math.Cos(toAngle)
+	ye = math.Sin(toAngle)
 
 	ok = insector == sector
 	return
@@ -231,15 +238,15 @@ func (dev *rgbDevice) putpixel(sector int, xc, yc, x, y float64, s arcSector) {
 		isInsideSector3,
 	}
 	if tests[sector](x, y, s.xs, s.ys, s.xe, s.ye) {
-		fmt.Println("putpixel ", sector, x+xc, y+yc)
+		// fmt.Println("putpixel ", sector, x, y)
 		dev.pixeldev.Pixel(int(math.Round(x+xc)), int(math.Round(y+yc)), dev.color)
 	}
 }
 
 func showSectors(sectors []arcSector) {
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 5; i++ {
 		s := sectors[i]
-		fmt.Printf("%d(%v): xs: %5.3f, ys: %5.3f, xe: %5.3f, ye: %5.3f\n", s.sector, s.ok, s.xs, s.ys, s.xe, s.ye)
+		fmt.Printf("%d(%v): xs: %5.3f, ys: %5.3f, xe: %5.3f, ye: %5.3f\n", i, s.ok, s.xs, s.ys, s.xe, s.ye)
 	}
 }
 

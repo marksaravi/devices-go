@@ -9,6 +9,7 @@ import (
 	"github.com/marksaravi/devices-go/colors"
 	"github.com/marksaravi/devices-go/devices/display"
 	"github.com/marksaravi/devices-go/hardware/ili9341"
+	"github.com/marksaravi/devices-go/utils"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
 	"periph.io/x/conn/v3/physic"
@@ -34,8 +35,6 @@ func main() {
 	var ili9341Display display.RGBDisplay
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
-	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.GREEN))
-	fmt.Printf("%X\n", colors.RGB888ToRGB565(colors.FORESTGREEN))
 	tests := []func(display.RGBDisplay){
 		drawArc,
 		// drawLines,
@@ -127,12 +126,16 @@ func drawThickCircle(ili9341Display display.RGBDisplay) {
 
 func drawArc(ili9341Display display.RGBDisplay) {
 	const N int = 1
-	xyc := [N][]float64{{160, 120, 100, math.Pi / 180 * 135, math.Pi / 180 * 350}}
+	// sa := float64(270)
+	xyc := [N][]float64{{160, 120, 100, utils.ToRad(45), utils.ToRad(15)}}
 	colorset := [N]colors.Color{colors.BLACK}
 	for i := 0; i < N; i++ {
 		ili9341Display.SetColor(colorset[i])
 		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
 	}
+	ili9341Display.SetColor(colors.RED)
+	ili9341Display.Line(160, 0, 160, 239)
+	ili9341Display.Line(0, 120, 319, 120)
 }
 
 func drawRectangle(ili9341Display display.RGBDisplay) {
