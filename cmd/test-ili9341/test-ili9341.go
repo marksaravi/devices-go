@@ -125,22 +125,33 @@ func drawThickCircle(ili9341Display display.RGBDisplay) {
 }
 
 func drawArc(ili9341Display display.RGBDisplay) {
-	const N int = 6
-	// sa := float64(270)
+	const N int = 12
 	xyc := [N][]float64{
 		{160, 120, 50, utils.ToRad(0), utils.ToRad(90)},
-		{160, 120, 60, utils.ToRad(90), utils.ToRad(180)},
-		{160, 120, 70, utils.ToRad(180), utils.ToRad(270)},
-		{160, 120, 80, utils.ToRad(270), utils.ToRad(360)},
-		{160, 120, 90, utils.ToRad(15), utils.ToRad(45)},
-		{160, 120, 100, utils.ToRad(45), utils.ToRad(15)},
+		{160, 120, 55, utils.ToRad(90), utils.ToRad(180)},
+		{160, 120, 60, utils.ToRad(180), utils.ToRad(270)},
+		{160, 120, 65, utils.ToRad(270), utils.ToRad(360)},
+		{160, 120, 70, utils.ToRad(15), utils.ToRad(45)},
+		{160, 120, 75, utils.ToRad(45), utils.ToRad(15)},
+		{160, 120, 80, utils.ToRad(15 + 90), utils.ToRad(45 + 90)},
+		{160, 120, 85, utils.ToRad(45 + 90), utils.ToRad(15 + 90)},
+		{160, 120, 90, utils.ToRad(15 + 180), utils.ToRad(45 + 180)},
+		{160, 120, 95, utils.ToRad(45 + 180), utils.ToRad(15 + 180)},
+		{160, 120, 100, utils.ToRad(15 + 270), utils.ToRad(45 + 270)},
+		{160, 120, 105, utils.ToRad(45 + 270), utils.ToRad(15 + 270)},
 	}
 	colorset := [N]colors.Color{
 		colors.RED,
-		colors.YELLOW,
-		colors.BLUE,
 		colors.GREEN,
-		colors.PURPLE,
+		colors.BLUE,
+		colors.BLACK,
+		colors.RED,
+		colors.GREEN,
+		colors.BLUE,
+		colors.BLACK,
+		colors.RED,
+		colors.GREEN,
+		colors.BLUE,
 		colors.BLACK,
 	}
 	for i := 0; i < N; i++ {
