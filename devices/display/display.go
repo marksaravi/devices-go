@@ -1,6 +1,7 @@
 package display
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/marksaravi/devices-go/colors"
@@ -155,81 +156,124 @@ func getSectors(startAngle, endAngle float64) (int, int) {
 	return s1, s2
 }
 
-// func (dev *rgbDevice) Arc(xc, yc, radius, startAngle, endAngle float64) {
-// 	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+type arcSector struct {
+	sector         int
+	ok             bool
+	xs, xe, ys, ye float64
+}
 
-// 	sAngle := math.Mod(startAngle, math.Pi*2)
-// 	eAngle := math.Mod(endAngle, math.Pi*2)
-// 	radiusI := int(math.Round(radius))
-// 	xs := int(math.Round(float64(radiusI) * math.Cos(sAngle)))
-// 	xe := int(math.Round(float64(radiusI) * math.Cos(eAngle)))
+func isInsideSector0(x, y, xs, ys, xe, ye float64) bool {
+	return x <= xs && x >= xe && y >= ys && y <= ye
+}
 
-// 	signSY := float64(1)
-// 	if sAngle > math.Pi && sAngle < math.Pi*2 {
-// 		signSY = -1
-// 	}
-// 	signEY := float64(1)
-// 	if eAngle > math.Pi && eAngle < math.Pi*2 {
-// 		signEY = -1
-// 	}
+func isInsideSector1(x, y, xs, ys, xe, ye float64) bool {
+	return x <= xs && x >= xe && y <= ys && y >= ye
+}
 
-// 	dx := -1
-// 	x := xs
+func isInsideSector2(x, y, xs, ys, xe, ye float64) bool {
+	return x >= xs && x <= xe && y <= ys && y >= ye
+}
 
-// 	radius2 := radius * radius
-// 	signY := signSY
-// 	for true {
-// 		y := math.Sqrt(radius2-float64(x*x)) * signY
-// 		if x == xe && signY == signEY {
-// 			break
-// 		}
-// 		if x == 0 {
-// 		}
-// 		x += dx
-// 	}
-// }
+func isInsideSector3(x, y, xs, ys, xe, ye float64) bool {
+	return x >= xs && x <= xe && y >= ys && y <= ye
+}
+
+func findArcSectors(startAngle, endAngle, radius float64) []arcSector {
+	sectors := make([]arcSector, 4)
+	for sector := 0; sector < 4; sector++ {
+		sectors[sector].sector = sector
+		sectors[sector].ok = true
+		sxs, sys, sxe, sye, sok := isInSector(sector, startAngle)
+		exs, eys, exe, eye, eok := isInSector(sector, endAngle)
+		if sok && eok {
+			sectors[sector].xs = sxs
+			sectors[sector].ys = sys
+			sectors[sector].xe = exs
+			sectors[sector].ye = eys
+		} else if sok {
+			sectors[sector].xs = sxs
+			sectors[sector].ys = sys
+			sectors[sector].xe = sxe
+			sectors[sector].ye = sye
+		} else if eok {
+			sectors[sector].xs = exs
+			sectors[sector].ys = eys
+			sectors[sector].xe = exe
+			sectors[sector].ye = eye
+		} else {
+			sectors[sector].ok = false
+		}
+		sectors[sector].xs *= radius
+		sectors[sector].ys *= radius
+		sectors[sector].xe *= radius
+		sectors[sector].ye *= radius
+	}
+	return sectors
+}
+
+func isInSector(sector int, angle float64) (xs, ys, xe, ye float64, ok bool) {
+	insector := int(math.Floor(angle * 2 / math.Pi))
+	xs = math.Cos(angle)
+	ys = math.Sin(angle)
+	sectorEndAngle := (float64(insector) + 1) * math.Pi / 2
+	xe = math.Cos(sectorEndAngle)
+	ye = math.Sin(sectorEndAngle)
+
+	ok = insector == sector
+	return
+}
+
+func (dev *rgbDevice) putpixel(sector int, xc, yc, x, y float64, s arcSector) {
+	tests := []func(x, y, xs, ys, xe, ye float64) bool{
+		isInsideSector0,
+		isInsideSector1,
+		isInsideSector2,
+		isInsideSector3,
+	}
+	if tests[sector](x, y, s.xs, s.ys, s.xe, s.ye) {
+		fmt.Println("putpixel ", sector, x+xc, y+yc)
+		dev.pixeldev.Pixel(int(math.Round(x+xc)), int(math.Round(y+yc)), dev.color)
+	}
+}
+
+func showSectors(sectors []arcSector) {
+	for i := 0; i < 4; i++ {
+		s := sectors[i]
+		fmt.Printf("%d(%v): xs: %5.3f, ys: %5.3f, xe: %5.3f, ye: %5.3f\n", s.sector, s.ok, s.xs, s.ys, s.xe, s.ye)
+	}
+}
+
 func (dev *rgbDevice) Arc(xc, yc, radius, startAngle, endAngle float64) {
-	// Midpoint circle algorithm https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
-
-	getSignY := func(angle float64) int {
-		if angle >= 0 && angle < DEG180 {
-			return 1
+	iradius := math.Round(radius)
+	sectors := findArcSectors(startAngle, endAngle, iradius)
+	showSectors(sectors)
+	var iradius2 = iradius * iradius
+	var l1 float64 = 0
+	for l1 = 0; true; l1 += 1 {
+		l2 := math.Sqrt(iradius2 - l1*l1)
+		if sectors[0].ok {
+			dev.putpixel(0, xc, yc, l1, l2, sectors[0])
+			dev.putpixel(0, xc, yc, l2, l1, sectors[0])
 		}
-		return -1
-	}
 
-	getIncX := func(angle float64) int {
-		if angle >= 0 && angle < DEG180 {
-			return -1
+		if sectors[1].ok {
+			dev.putpixel(1, xc, yc, -l1, l2, sectors[1])
+			dev.putpixel(1, xc, yc, -l2, l1, sectors[1])
 		}
-		return 1
-	}
 
-	sY := getSignY(startAngle)
-	signEndY := getSignY(endAngle)
+		if sectors[2].ok {
+			dev.putpixel(2, xc, yc, -l1, -l2, sectors[2])
+			dev.putpixel(2, xc, yc, -l2, -l1, sectors[2])
+		}
+		if sectors[3].ok {
+			dev.putpixel(3, xc, yc, l1, -l2, sectors[3])
+			dev.putpixel(3, xc, yc, l2, -l1, sectors[3])
 
-	r := int(math.Round(radius))
-	xs := int(math.Round(float64(r) * math.Cos(startAngle)))
-	xe := int(math.Round(float64(r) * math.Cos(endAngle)))
-
-	x := xs
-	dx := getIncX(startAngle)
-	r2 := r * r
-	for true {
-		y := int(math.Round(math.Sqrt(float64(r2)-float64(x*x)))) * sY
-		dev.pixeldev.Pixel(int(math.Round(xc))+x, int(math.Round(yc))+y, dev.color)
-		if x == xe && sY == signEndY {
+		}
+		if l1 >= l2 {
 			break
 		}
-		x += dx
-		if x == r {
-			sY = 1
-			dx = -1
-		}
-		if x == -r {
-			sY = -1
-			dx = 1
-		}
+
 	}
 }
 
