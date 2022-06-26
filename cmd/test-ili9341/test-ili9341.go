@@ -36,15 +36,15 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
+		drawLines,
 		drawArc,
 		draThickwArc,
-		// drawLines,
-		// drawCircle,
-		// drawFillCircle,
-		// drawThickCircle,
-		// drawRectangle,
-		// drawFillRectangle,
-		// drawThickRectangle,
+		drawCircle,
+		drawFillCircle,
+		drawThickCircle,
+		drawRectangle,
+		drawFillRectangle,
+		drawThickRectangle,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)

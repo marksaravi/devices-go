@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"github.com/marksaravi/devices-go/colors"
-	"github.com/marksaravi/devices-go/utils"
 )
 
 type WidthType int
@@ -177,7 +176,6 @@ func isInsideSector2(x, y, xs, ys, xe, ye float64) bool {
 }
 
 func isInsideSector3(x, y, xs, ys, xe, ye float64) bool {
-	// fmt.Printf("%6.2f, %6.2f,%6.2f, %6.2f,%6.2f, %6.2f, %v\n", x, xs, xe, y, ys, ye, x <= xs && x > xe && y >= ys && y < ye)
 	return x >= xs && x < xe && y >= ys && y < ye
 }
 
@@ -191,7 +189,6 @@ func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
 	PI2 := math.Pi / 2
 	from := math.Mod(startAngle, math.Pi*2)
 	to := math.Mod(endAngle, math.Pi*2)
-	fmt.Println("from: ", utils.ToDeg(from), " ,to: ", utils.ToDeg(to))
 	if to < from {
 		to += math.Pi * 2
 	}
@@ -219,7 +216,7 @@ func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
 			sectorsmap[sec%4] = append(sectorsmap[sec%4], sector)
 		}
 	}
-	showSectors(sectorsmap)
+	// showSectors(sectorsmap)
 	return sectorsmap
 }
 
