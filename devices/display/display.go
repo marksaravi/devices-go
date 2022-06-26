@@ -207,9 +207,7 @@ func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
 		if e >= to {
 			e = to
 		}
-		fmt.Println("s: ", utils.ToDeg(s), " ,e: ", utils.ToDeg(e))
 		if angle >= s && angle < e {
-			fmt.Println("angle: ", utils.ToDeg(angle))
 			sector.ok = true
 			sector.xs = radius * math.Cos(angle)
 			sector.ys = radius * math.Sin(angle)
@@ -219,36 +217,6 @@ func findArcSectors(startAngle, endAngle, radius float64) map[int][]arcSector {
 			sectorsmap[sec%4] = append(sectorsmap[sec%4], sector)
 		}
 	}
-	// from := startAngle
-	// to := endAngle
-	// for sec := 0; sec < 5; sec++ {
-	// 	sector := arcSector{
-	// 		ok: false,
-	// 		xs: 0,
-	// 		ys: 0,
-	// 		xe: 0,
-	// 		ye: 0,
-	// 	}
-	// 	s := float64(sec) * PI2
-	// 	e := s + PI2
-	// 	if from >= s && from < e {
-	// 		fmt.Print("from: ", utils.ToDeg(from))
-	// 		sector.ok = true
-	// 		sector.xs = radius * math.Cos(from)
-	// 		sector.ys = radius * math.Sin(from)
-	// 		if to >= s && to < e && to >= from {
-	// 			fmt.Println(", to: ", utils.ToDeg(to))
-	// 			sector.xe = radius * math.Cos(to)
-	// 			sector.ye = radius * math.Sin(to)
-	// 		} else {
-	// 			from = e
-	// 			fmt.Println(", to: ", utils.ToDeg(from))
-	// 			sector.xe = radius * math.Cos(from)
-	// 			sector.ye = radius * math.Sin(from)
-	// 		}
-	//
-	// 	}
-	// }
 	showSectors(sectorsmap)
 	return sectorsmap
 }
