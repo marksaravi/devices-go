@@ -60,8 +60,6 @@ type RGBDisplay interface {
 	ThickCircle(x, y, radius float64, width int, widthType WidthType)
 	FillCircle(x, y, radius float64)
 
-	// FillCircle(x, y, radius float64)
-
 	// Printing methods
 	MoveCursor(x, y int)
 	SetFont(font interface{}) error
