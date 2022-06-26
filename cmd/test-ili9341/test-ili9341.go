@@ -37,6 +37,7 @@ func main() {
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
 		drawArc,
+		draThickwArc,
 		// drawLines,
 		// drawCircle,
 		// drawFillCircle,
@@ -155,13 +156,36 @@ func drawArc(ili9341Display display.RGBDisplay) {
 		{160, 120, 100, utils.ToRad(285), utils.ToRad(315)},
 		{160, 120, 105, utils.ToRad(315), utils.ToRad(285)},
 	}
-	for i := 10; i < 11; i++ {
+	for i := 0; i < N; i++ {
 		ili9341Display.SetColor(colorset[i])
 		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
 	}
 	ili9341Display.SetColor(colors.RED)
 	ili9341Display.Line(160, 0, 160, 239)
 	ili9341Display.Line(0, 120, 319, 120)
+}
+
+func draThickwArc(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	colorset := [N]colors.Color{
+		colors.CYAN,
+		colors.GREEN,
+		colors.LIGHTBLUE,
+	}
+
+	widhTypes := [N]display.WidthType{display.OUTER_WIDTH, display.CENTER_WIDTH, display.INNER_WIDTH}
+	xyc := [N][]float64{
+		{160, 120, 70, utils.ToRad(45), utils.ToRad(175)},
+		{160, 120, 90, utils.ToRad(15), utils.ToRad(300)},
+		{160, 120, 115, utils.ToRad(300), utils.ToRad(15)},
+	}
+
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.ThickArc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4], 10, widhTypes[i])
+		ili9341Display.SetColor(colors.RED)
+		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
+	}
 }
 
 func drawRectangle(ili9341Display display.RGBDisplay) {

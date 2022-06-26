@@ -48,6 +48,8 @@ type RGBDisplay interface {
 	ThickRectangle(x1, y1, x2, y2 float64, width int, widthType WidthType)
 
 	Arc(x, y, radius, startAngle, endAngle float64)
+	ThickArc(x, y, radius, startAngle, endAngle float64, width int, widthType WidthType)
+
 	Circle(x, y, radius float64)
 	ThickCircle(x, y, radius float64, width int, widthType WidthType)
 	FillCircle(x, y, radius float64)
@@ -232,7 +234,7 @@ func isInSector(sector int, fromAngle, toAngle float64) (xs, ys, xe, ye float64,
 	return
 }
 
-func (dev *rgbDevice) putpixel(sector int, xc, yc, x, y float64, s arcSector) {
+func (dev *rgbDevice) arcPutPixel(sector int, xc, yc, x, y float64, s arcSector) {
 	tests := []func(x, y, xs, ys, xe, ye float64) bool{
 		isInsideSector0,
 		isInsideSector1,
@@ -240,7 +242,6 @@ func (dev *rgbDevice) putpixel(sector int, xc, yc, x, y float64, s arcSector) {
 		isInsideSector3,
 	}
 	if tests[sector](x, y, s.xs, s.ys, s.xe, s.ye) {
-		// fmt.Println("putpixel ", sector, x, y)
 		dev.pixeldev.Pixel(int(math.Round(x+xc)), int(math.Round(y+yc)), dev.color)
 	}
 }
@@ -268,32 +269,22 @@ func (dev *rgbDevice) Arc(xc, yc, radius, startAngle, endAngle float64) {
 			sectors := sectormaps[sector]
 			for i := 0; i < len(sectors); i++ {
 				if sectors[i].ok {
-					dev.putpixel(sector, xc, yc, signs[sector][0]*l1, signs[sector][1]*l2, sectors[i])
-					dev.putpixel(sector, xc, yc, signs[sector][0]*l2, signs[sector][1]*l1, sectors[i])
+					dev.arcPutPixel(sector, xc, yc, signs[sector][0]*l1, signs[sector][1]*l2, sectors[i])
+					dev.arcPutPixel(sector, xc, yc, signs[sector][0]*l2, signs[sector][1]*l1, sectors[i])
 				}
 			}
 		}
-		// if sectors[0].ok {
-		// 	dev.putpixel(0, xc, yc, l1, l2, sectors[0])
-		// 	dev.putpixel(0, xc, yc, l2, l1, sectors[0])
-		// }
-		// if sectors[1].ok {
-		// 	dev.putpixel(1, xc, yc, -l1, l2, sectors[1])
-		// 	dev.putpixel(1, xc, yc, -l2, l1, sectors[1])
-		// }
-		// if sectors[2].ok {
-		// 	dev.putpixel(2, xc, yc, -l1, -l2, sectors[2])
-		// 	dev.putpixel(2, xc, yc, -l2, -l1, sectors[2])
-		// }
-		// if sectors[3].ok {
-		// 	dev.putpixel(3, xc, yc, l1, -l2, sectors[3])
-		// 	dev.putpixel(3, xc, yc, l2, -l1, sectors[3])
-		// }
 
 		if l1 >= l2 {
 			break
 		}
+	}
+}
 
+func (dev *rgbDevice) ThickArc(xc, yc, radius, startAngle, endAngle float64, width int, widthType WidthType) {
+	rs := calcThicknessStart(radius, width, widthType)
+	for dr := 0; dr < width; dr++ {
+		dev.Arc(xc, yc, rs-float64(dr), startAngle, endAngle)
 	}
 }
 
