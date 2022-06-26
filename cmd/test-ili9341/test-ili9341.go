@@ -6,9 +6,10 @@ import (
 	"math"
 	"time"
 
-	"github.com/marksaravi/devices-go/colors/rgb565"
+	"github.com/marksaravi/devices-go/colors"
 	"github.com/marksaravi/devices-go/devices/display"
 	"github.com/marksaravi/devices-go/hardware/ili9341"
+	"github.com/marksaravi/devices-go/utils"
 	"github.com/marksaravi/fonts-go/fonts"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
@@ -30,78 +31,221 @@ func main() {
 	spiConn := createSPIConnection(0, 0)
 	dataCommandSelect := createGpioOutPin("GPIO22")
 	reset := createGpioOutPin("GPIO23")
-	var display display.RGB565Display
-	var err error
-	display, err = ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
+
+	ili9341Dev, err := ili9341.NewILI9341(spiConn, dataCommandSelect, reset)
+	var ili9341Display display.RGBDisplay
+	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
-	// time.Sleep(1000 * time.Millisecond)
-	// testLines(display)
-	// time.Sleep(1000 * time.Millisecond)
-	// testColors(display)
-	// time.Sleep(1000 * time.Millisecond)
-	testFonts(display)
-	time.Sleep(1000 * time.Millisecond)
-	testShapes(display)
-	time.Sleep(1000 * time.Millisecond)
-}
-
-func testLines(display display.RGB565Display) {
-	display.SetBackgroundColor(rgb565.BLACK)
-	display.Clear()
-	xmax := float64(display.ScreenWidth() - 1)
-	ymax := float64(display.ScreenHeight() - 1)
-	display.SetColor(rgb565.GREEN)
-	display.Line(0, 0, xmax, ymax)
-	display.Line(0, ymax, xmax, 0)
-	display.SetColor(rgb565.YELLOW)
-	display.Line(0, 0, xmax, 0)
-	display.Line(xmax, 0, xmax, ymax)
-	display.Line(xmax, ymax, 0, ymax)
-	display.Line(0, ymax, 0, 0)
-	display.Update()
-}
-
-func testFonts(display display.RGB565Display) {
-	display.SetBackgroundColor(rgb565.WHITE)
-	display.Clear()
-	display.MoveCursor(5, 5)
-	display.SetColor(rgb565.BLUE)
-	display.SetFont(fonts.Org_01)
-	display.SetLineHeight(40)
-	display.SetFont(fonts.FreeSans24pt7b)
-	display.Write("Hello Mark!")
-	display.SetFont(fonts.FreeMono18pt7b)
-	display.Write("Hello Mark!\n")
-	display.Write("0123456789")
-	display.Update()
-}
-
-func testColors(display display.RGB565Display) {
-	display.SetBackgroundColor(rgb565.BLACK)
-	display.Clear()
-	colors := []rgb565.RGB565{rgb565.WHITE, rgb565.YELLOW, rgb565.GREEN, rgb565.BLUE, rgb565.RED}
-	xmax := float64(display.ScreenWidth() - 1)
-	const height = 20
-	const margin = 10
-	for color := 0; color < len(colors); color++ {
-		ys := float64(color * (height + margin))
-		display.SetColor(colors[color])
-		display.FillRectangle(0, ys, xmax, ys+height)
+	tests := []func(display.RGBDisplay){
+		drawLines,
+		drawArc,
+		draThickwArc,
+		drawCircle,
+		drawFillCircle,
+		drawThickCircle,
+		drawRectangle,
+		drawFillRectangle,
+		drawThickRectangle,
+		drawFonts,
 	}
-	display.Update()
+	for i := 0; i < len(tests); i++ {
+		ili9341Display.SetBackgroundColor(colors.WHITE)
+		ili9341Display.Clear()
+		tests[i](ili9341Display)
+		ili9341Display.Update()
+		time.Sleep(1000 * time.Millisecond)
+	}
+
+	// testColors(ili9341Display)
+	// time.Sleep(1000 * time.Millisecond)
+	// testFonts(ili9341Display)
+	// testShapes(ili9341Display)
 }
 
-func testShapes(display display.RGB565Display) {
-	display.SetBackgroundColor(rgb565.BLUE)
-	display.Clear()
-	display.SetColor(rgb565.YELLOW)
-	display.Circle(50, 50, 30)
-	display.SetColor(rgb565.GREEN)
-	display.FillCircle(100, 100, 30)
-	display.Arc(120, 120, 118, -math.Pi/4, math.Pi/4, 40)
-	// display.SetColor(rgb565.RED)
-	// display.FillRectangle(50, 150, 220, 180)
-	display.Update()
+func drawLines(ili9341Display display.RGBDisplay) {
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2
+	sAngle := math.Pi / 180 * 0
+	rAngle := 2 * math.Pi
+	dAngle := math.Pi / 180 * 5
+
+	ili9341Display.SetBackgroundColor(colors.WHITE)
+	ili9341Display.Clear()
+	ili9341Display.SetColor(colors.BLUE)
+	for angle := sAngle; angle < sAngle+rAngle; angle += dAngle {
+		x := math.Cos(angle) * radius
+		y := math.Sin(angle) * radius
+		ili9341Display.Line(xc, yc, xc+x, yc+y)
+	}
+
+}
+
+func drawCircle(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2.1
+	xyc := [N][]float64{{xc, yc, radius}, {xc, yc, radius * .75}, {xc, yc, radius * .45}}
+	colorset := [N]colors.Color{colors.BLACK, colors.DARKBLUE, colors.DARKGREEN}
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.Circle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
+}
+
+func drawFillCircle(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	xyc := [N][]float64{{30, 30, 45}, {160, 120, 115}, {400, 400, 250}}
+	colorset := [N]colors.Color{colors.BLACK, colors.DARKBLUE, colors.DARKGREEN}
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.FillCircle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
+}
+
+func drawThickCircle(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	xmax := float64(ili9341Display.ScreenWidth() - 1)
+	ymax := float64(ili9341Display.ScreenHeight() - 1)
+	xc := xmax / 2
+	yc := ymax / 2
+	radius := ymax / 2.1
+	xyc := [N][]float64{{xc, yc, radius}, {xc, yc, radius * .75}, {xc, yc, radius * .45}}
+	colorset := [N]colors.Color{colors.ROYALBLUE, colors.SILVER, colors.MEDIUMSPRINGGREEN}
+	widhTypes := [N]display.WidthType{display.INNER_WIDTH, display.CENTER_WIDTH, display.OUTER_WIDTH}
+	const width = 10
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.ThickCircle(xyc[i][0], xyc[i][1], xyc[i][2], width, widhTypes[i])
+		ili9341Display.SetColor(colors.RED)
+		ili9341Display.Circle(xyc[i][0], xyc[i][1], xyc[i][2])
+	}
+}
+
+func drawArc(ili9341Display display.RGBDisplay) {
+	const N int = 12
+	colorset := [N]colors.Color{
+		colors.RED,
+		colors.GREEN,
+		colors.BLUE,
+		colors.BLACK,
+		colors.RED,
+		colors.GREEN,
+		colors.BLUE,
+		colors.BLACK,
+		colors.RED,
+		colors.GREEN,
+		colors.BLUE,
+		colors.BLACK,
+	}
+
+	xyc := [N][]float64{
+		{160, 120, 50, utils.ToRad(0), utils.ToRad(90)},
+		{160, 120, 55, utils.ToRad(90), utils.ToRad(180)},
+		{160, 120, 60, utils.ToRad(180), utils.ToRad(270)},
+		{160, 120, 65, utils.ToRad(270), utils.ToRad(360)},
+		{160, 120, 70, utils.ToRad(15), utils.ToRad(45)},
+		{160, 120, 75, utils.ToRad(45), utils.ToRad(15)},
+		{160, 120, 80, utils.ToRad(105), utils.ToRad(135)},
+		{160, 120, 85, utils.ToRad(135), utils.ToRad(105)},
+		{160, 120, 90, utils.ToRad(195), utils.ToRad(225)},
+		{160, 120, 95, utils.ToRad(225), utils.ToRad(195)},
+		{160, 120, 100, utils.ToRad(285), utils.ToRad(315)},
+		{160, 120, 105, utils.ToRad(315), utils.ToRad(285)},
+	}
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
+	}
+	ili9341Display.SetColor(colors.RED)
+	ili9341Display.Line(160, 0, 160, 239)
+	ili9341Display.Line(0, 120, 319, 120)
+}
+
+func draThickwArc(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	colorset := [N]colors.Color{
+		colors.CYAN,
+		colors.GREEN,
+		colors.LIGHTBLUE,
+	}
+
+	widhTypes := [N]display.WidthType{display.OUTER_WIDTH, display.CENTER_WIDTH, display.INNER_WIDTH}
+	xyc := [N][]float64{
+		{160, 120, 70, utils.ToRad(45), utils.ToRad(175)},
+		{160, 120, 90, utils.ToRad(15), utils.ToRad(300)},
+		{160, 120, 115, utils.ToRad(300), utils.ToRad(15)},
+	}
+
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.ThickArc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4], 10, widhTypes[i])
+		ili9341Display.SetColor(colors.RED)
+		ili9341Display.Arc(xyc[i][0], xyc[i][1], xyc[i][2], xyc[i][3], xyc[i][4])
+	}
+}
+
+func drawRectangle(ili9341Display display.RGBDisplay) {
+	const N int = 2
+	xy := [N][]float64{{10, 10, 100, 100}, {50, 50, 200, 200}}
+	colorset := [N]colors.Color{colors.BLUE, colors.GREEN}
+	for i := 0; i < 2; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.Rectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
+	}
+
+}
+
+func drawFillRectangle(ili9341Display display.RGBDisplay) {
+	const N int = 2
+	xy := [N][]float64{{100, 100, 10, 10}, {50, 50, 200, 200}}
+	colors := [N]colors.Color{colors.BLUE, colors.GREEN}
+	for i := 0; i < 2; i++ {
+		ili9341Display.SetColor(colors[i])
+		ili9341Display.FillRectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
+	}
+
+}
+
+func drawThickRectangle(ili9341Display display.RGBDisplay) {
+	const N int = 3
+	xy := [N][]float64{{100, 100, 10, 10}, {50, 50, 200, 200}, {100, 100, 300, 220}}
+	colorset := [N]colors.Color{colors.ROYALBLUE, colors.NAVY, colors.FORESTGREEN}
+	widhTypes := [N]display.WidthType{display.INNER_WIDTH, display.CENTER_WIDTH, display.OUTER_WIDTH}
+	const width = 10
+	for i := 0; i < N; i++ {
+		ili9341Display.SetColor(colorset[i])
+		ili9341Display.ThickRectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3], width, widhTypes[i])
+		ili9341Display.SetColor(colors.RED)
+		ili9341Display.Rectangle(xy[i][0], xy[i][1], xy[i][2], xy[i][3])
+	}
+
+}
+
+func drawFonts(ili9341Display display.RGBDisplay) {
+	ili9341Display.MoveCursor(0, 0)
+	ili9341Display.SetColor(colors.BLUE)
+	ili9341Display.SetLineHeight(18)
+	ili9341Display.SetFont(fonts.FreeSansBoldOblique9pt7b)
+	ili9341Display.Write("Hello Mark!")
+
+	ili9341Display.MoveCursor(0, 30)
+	ili9341Display.SetColor(colors.RED)
+	ili9341Display.SetLineHeight(22)
+	ili9341Display.SetFont(fonts.FreeSansOblique18pt7b)
+	ili9341Display.Write("Hello Mark!")
+
+	ili9341Display.MoveCursor(0, 70)
+	ili9341Display.SetColor(colors.BLACK)
+	ili9341Display.SetLineHeight(22)
+	ili9341Display.SetFont(fonts.FreeSerif18pt7b)
+	ili9341Display.Write("Hello Mark!")
+
 }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
