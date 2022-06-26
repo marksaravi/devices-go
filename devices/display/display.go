@@ -5,9 +5,11 @@ import (
 	"math"
 
 	"github.com/marksaravi/devices-go/colors"
+	"github.com/marksaravi/fonts-go/fonts"
 )
 
 type WidthType int
+type FontType int
 
 const (
 	DEG90  = math.Pi / 2
@@ -15,10 +17,15 @@ const (
 	DEG270 = DEG90 * 3
 	DEG360 = DEG90 * 4
 )
+
 const (
 	INNER_WIDTH  WidthType = 0
 	OUTER_WIDTH  WidthType = 1
 	CENTER_WIDTH WidthType = 2
+)
+
+const (
+	BITMAP_FONT FontType = 0
 )
 
 type pixelDevice interface {
@@ -56,23 +63,47 @@ type RGBDisplay interface {
 	// FillCircle(x, y, radius float64)
 
 	// Printing methods
-	// MoveCursor(x, y int)
-	// SetFont(font fonts.BitmapFont)
-	// SetLineHeight(height int)
-	// SetLetterSpacing(spacing int)
-	// WriteChar(char byte) error
-	// Write(text string)
+	MoveCursor(x, y int)
+	SetFont(font interface{}) error
+	SetLineHeight(height int)
+	SetLetterSpacing(spacing int)
+	WriteChar(char byte) error
+	Write(text string)
+	SetLineWrapping(wrapping bool)
 }
 
 type rgbDevice struct {
-	pixeldev pixelDevice
-	color    colors.Color
-	bgColor  colors.Color
+	pixeldev        pixelDevice
+	color           colors.Color
+	bgColor         colors.Color
+	font            interface{}
+	bitmapFont      fonts.BitmapFont
+	fontType        FontType
+	cursorX         int
+	cursorY         int
+	letterSpacing   int
+	charWidth       int
+	lineHeight      int
+	textLeftPadding int
+	textTopPadding  int
+	lineWrapping    bool
 }
 
 func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
 	return &rgbDevice{
-		pixeldev: pixeldev,
+		pixeldev:        pixeldev,
+		color:           colors.WHITE,
+		bgColor:         colors.BLACK,
+		fontType:        BITMAP_FONT,
+		font:            fonts.FreeMono18pt7b,
+		cursorX:         0,
+		cursorY:         0,
+		charWidth:       0,
+		letterSpacing:   0,
+		lineHeight:      0,
+		textLeftPadding: 0,
+		textTopPadding:  0,
+		lineWrapping:    true,
 	}
 }
 

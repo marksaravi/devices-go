@@ -10,6 +10,7 @@ import (
 	"github.com/marksaravi/devices-go/devices/display"
 	"github.com/marksaravi/devices-go/hardware/ili9341"
 	"github.com/marksaravi/devices-go/utils"
+	"github.com/marksaravi/fonts-go/fonts"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
 	"periph.io/x/conn/v3/physic"
@@ -36,15 +37,16 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
-		drawLines,
-		drawArc,
-		draThickwArc,
-		drawCircle,
-		drawFillCircle,
-		drawThickCircle,
-		drawRectangle,
-		drawFillRectangle,
-		drawThickRectangle,
+		// drawLines,
+		// drawArc,
+		// draThickwArc,
+		// drawCircle,
+		// drawFillCircle,
+		// drawThickCircle,
+		// drawRectangle,
+		// drawFillRectangle,
+		// drawThickRectangle,
+		drawFonts,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
@@ -225,48 +227,16 @@ func drawThickRectangle(ili9341Display display.RGBDisplay) {
 
 }
 
-// func testFonts(ili9341Display display.RGB565Display) {
-// 	ili9341Display.SetBackgroundColor(colors.WHITE)
-// 	ili9341Display.Clear()
-// 	ili9341Display.MoveCursor(5, 5)
-// 	ili9341Display.SetColor(colors.BLUE)
-// 	ili9341Display.SetFont(fonts.Org_01)
-// 	ili9341Display.SetLineHeight(40)
-// 	ili9341Display.SetFont(fonts.FreeSans24pt7b)
-// 	ili9341Display.Write("Hello Mark!")
-// 	ili9341Display.SetFont(fonts.FreeMono18pt7b)
-// 	ili9341Display.Write("Hello Mark!\n")
-// 	ili9341Display.Write("0123456789")
-//
-// }
-
-// func testColors(ili9341Display display.RGB565Display) {
-// 	ili9341Display.SetBackgroundColor(colors.BLACK)
-// 	ili9341Display.Clear()
-// 	colors := []colors.Colors{colors.WHITE, colors.YELLOW, colors.GREEN, colors.BLUE, colors.RED}
-// 	xmax := float64(ili9341Display.ScreenWidth() - 1)
-// 	const height = 20
-// 	const margin = 10
-// 	for color := 0; color < len(colors); color++ {
-// 		ys := float64(color * (height + margin))
-// 		ili9341Display.SetColor(colors[color])
-// 		ili9341Display.FillRectangle(0, ys, xmax, ys+height)
-// 	}
-//
-// }
-
-// func testShapes(ili9341Display display.RGB565Display) {
-// 	ili9341Display.SetBackgroundColor(colors.BLUE)
-// 	ili9341Display.Clear()
-// 	ili9341Display.SetColor(colors.YELLOW)
-// 	ili9341Display.Circle(50, 50, 30)
-// 	ili9341Display.SetColor(colors.GREEN)
-// 	ili9341Display.FillCircle(100, 100, 30)
-// 	ili9341Display.Arc(120, 120, 118, -math.Pi/4, math.Pi/4, 40)
-// 	// ili9341Display.SetColor(colors.RED)
-// 	// ili9341Display.FillRectangle(50, 150, 220, 180)
-//
-// }
+func drawFonts(ili9341Display display.RGBDisplay) {
+	ili9341Display.MoveCursor(0, 0)
+	ili9341Display.SetColor(colors.BLUE)
+	ili9341Display.SetLineHeight(22)
+	err := ili9341Display.SetFont(fonts.FreeSansBoldOblique9pt7b)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ili9341Display.Write("Hello Mark!")
+}
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
 	var pin gpio.PinOut = gpioreg.ByName(gpioPinNum)
