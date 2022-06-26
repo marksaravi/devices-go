@@ -230,12 +230,22 @@ func drawThickRectangle(ili9341Display display.RGBDisplay) {
 func drawFonts(ili9341Display display.RGBDisplay) {
 	ili9341Display.MoveCursor(0, 0)
 	ili9341Display.SetColor(colors.BLUE)
-	ili9341Display.SetLineHeight(22)
-	err := ili9341Display.SetFont(fonts.FreeSansBoldOblique9pt7b)
-	if err != nil {
-		fmt.Println(err)
-	}
+	ili9341Display.SetLineHeight(18)
+	ili9341Display.SetFont(fonts.FreeSansBoldOblique9pt7b)
 	ili9341Display.Write("Hello Mark!")
+
+	ili9341Display.MoveCursor(0, 30)
+	ili9341Display.SetColor(colors.RED)
+	ili9341Display.SetLineHeight(22)
+	ili9341Display.SetFont(fonts.FreeSansOblique18pt7b)
+	ili9341Display.Write("Hello Mark!")
+
+	ili9341Display.MoveCursor(0, 70)
+	ili9341Display.SetColor(colors.BLACK)
+	ili9341Display.SetLineHeight(22)
+	ili9341Display.SetFont(fonts.FreeSerif18pt7b)
+	ili9341Display.Write("Hello Mark!")
+
 }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {

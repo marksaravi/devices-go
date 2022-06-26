@@ -66,10 +66,8 @@ type RGBDisplay interface {
 	MoveCursor(x, y int)
 	SetFont(font interface{}) error
 	SetLineHeight(height int)
-	SetLetterSpacing(spacing int)
 	WriteChar(char byte) error
 	Write(text string)
-	SetLineWrapping(wrapping bool)
 }
 
 type rgbDevice struct {
@@ -81,12 +79,10 @@ type rgbDevice struct {
 	fontType        FontType
 	cursorX         int
 	cursorY         int
-	letterSpacing   int
-	charWidth       int
+	charAdvanceX    int
 	lineHeight      int
 	textLeftPadding int
 	textTopPadding  int
-	lineWrapping    bool
 }
 
 func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
@@ -98,12 +94,10 @@ func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
 		font:            fonts.FreeMono18pt7b,
 		cursorX:         0,
 		cursorY:         0,
-		charWidth:       0,
-		letterSpacing:   0,
+		charAdvanceX:    0,
 		lineHeight:      0,
 		textLeftPadding: 0,
 		textTopPadding:  0,
-		lineWrapping:    true,
 	}
 }
 
