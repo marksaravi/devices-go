@@ -37,15 +37,15 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
-		// drawLines,
-		// drawArc,
-		// draThickwArc,
-		// drawCircle,
-		// drawFillCircle,
-		// drawThickCircle,
-		// drawRectangle,
-		// drawFillRectangle,
-		// drawThickRectangle,
+		drawLines,
+		drawArc,
+		draThickwArc,
+		drawCircle,
+		drawFillCircle,
+		drawThickCircle,
+		drawRectangle,
+		drawFillRectangle,
+		drawThickRectangle,
 		drawFonts,
 	}
 	for i := 0; i < len(tests); i++ {
