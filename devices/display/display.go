@@ -46,6 +46,7 @@ type RGBDisplay interface {
 
 	// Drawing methods
 	Clear()
+	ClearArea(x1, y1, x2, y2 float64)
 	Pixel(x, y float64)
 	Line(x1, y1, x2, y2 float64)
 
@@ -127,6 +128,29 @@ func (d *rgbDevice) Clear() {
 		}
 	}
 }
+
+func (d *rgbDevice) ClearArea(x1, y1, x2, y2 float64) {
+	xs:=int(math.Round(x1))
+	xe:=int(math.Round(x2))
+	ys:=int(math.Round(y1))
+	ye:=int(math.Round(y2))
+	if x1>x2 {
+		t:=xs
+		xs=xe
+		xe=t
+	}
+	if y1>y2 {
+		t:=ys
+		ys=ye
+		ye=t
+	}
+        for x := xs; x <= xe; x += 1 {
+                for y := ys; y <= ye; y += 1 {
+                        d.pixeldev.Pixel(x, y, d.bgColor)
+                }
+        }
+}
+
 
 func (d *rgbDevice) Pixel(x, y float64) {
 	d.pixeldev.Pixel(int(math.Round(x)), int(math.Round(y)), d.color)
