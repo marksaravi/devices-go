@@ -37,7 +37,6 @@ type device struct {
 	pinRST           gpio.PinOut // Reset
 	segments         []byte
 	isSegmentChanged []bool
-	changedSegment   chan int
 }
 
 func NewILI9341(
@@ -51,17 +50,15 @@ func NewILI9341(
 		pinRST:           pinRST,
 		segments:         make([]byte, num_of_segments*bytes_per_segments),
 		isSegmentChanged: make([]bool, num_of_segments),
-		changedSegment:   make(chan int),
 	}
 	d.initLCD()
-	d.startDeviceMemoryWriter()
 	return d, nil
 }
 
 func (dev *device) Update() {
 	for seg := 0; seg < num_of_segments; seg++ {
 		if dev.isSegmentChanged[seg] {
-			dev.changedSegment <- seg
+			dev.refreshSegment(seg)
 			dev.isSegmentChanged[seg] = false
 		}
 	}
@@ -99,15 +96,6 @@ func (dev *device) refreshSegment(seg int) {
 	dev.setWindow(xseg*segment_width, yseg*segment_height, (xseg+1)*segment_width-1, (yseg+1)*segment_height-1)
 	dev.pinDC.Out(gpio.High)
 	dev.conn.Tx(dev.segments[start:start+bytes_per_segments], nil)
-}
-
-func (dev *device) startDeviceMemoryWriter() {
-	go func() {
-		for {
-			seg := <-dev.changedSegment
-			dev.refreshSegment(seg)
-		}
-	}()
 }
 
 func (dev *device) initLCD() {

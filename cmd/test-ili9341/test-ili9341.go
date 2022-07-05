@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"time"
 
 	"github.com/marksaravi/devices-go/colors"
 	"github.com/marksaravi/devices-go/devices/display"
@@ -53,7 +52,6 @@ func main() {
 		ili9341Display.Clear()
 		tests[i](ili9341Display)
 		ili9341Display.Update()
-		time.Sleep(1000 * time.Millisecond)
 	}
 
 	// testColors(ili9341Display)
