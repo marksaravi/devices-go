@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"time"
 
 	"github.com/marksaravi/devices-go/colors"
 	"github.com/marksaravi/devices-go/devices/display"
@@ -36,22 +37,25 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
-		// drawLines,
-		// drawArc,
-		// draThickwArc,
-		// drawCircle,
-		// drawFillCircle,
-		// drawThickCircle,
-		// drawRectangle,
-		// drawFillRectangle,
-		// drawThickRectangle,
+		drawLines,
+		drawArc,
+		draThickwArc,
+		drawCircle,
+		drawFillCircle,
+		drawThickCircle,
+		drawRectangle,
+		drawFillRectangle,
+		drawThickRectangle,
 		drawFontsArea,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
 		ili9341Display.Clear()
 		tests[i](ili9341Display)
+		ts := time.Now()
 		ili9341Display.Update()
+		fmt.Println(time.Since(ts).Milliseconds())
+		time.Sleep(time.Second / 10)
 	}
 
 	// testColors(ili9341Display)
