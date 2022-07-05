@@ -11,8 +11,8 @@ import (
 const (
 	lcd_width                int  = 320 //LCD width
 	lcd_height               int  = 240 //LCD height
-	segment_width            int  = 16
-	segment_height           int  = 12
+	segment_width            int  = 32
+	segment_height           int  = 24
 	num_x_seg                int  = lcd_width / segment_width
 	num_y_seg                int  = lcd_height / segment_height
 	num_of_segments          int  = num_x_seg * num_y_seg
