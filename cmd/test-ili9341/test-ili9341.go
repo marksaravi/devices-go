@@ -47,12 +47,14 @@ func main() {
 		drawFillRectangle,
 		drawThickRectangle,
 		drawFontsArea,
+		drawDigits,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
 		ili9341Display.Clear()
-		tests[i](ili9341Display)
+		ili9341Display.Update()
 		ts := time.Now()
+		tests[i](ili9341Display)
 		ili9341Display.Update()
 		fmt.Println(time.Since(ts).Milliseconds())
 		time.Sleep(time.Second / 10)
@@ -258,7 +260,17 @@ func drawFontsArea(ili9341Display display.RGBDisplay) {
 		ili9341Display.Write(string(s))
 		yline += 48
 	}
+}
 
+func drawDigits(ili9341Display display.RGBDisplay) {
+	ili9341Display.SetFont(fonts.FreeSerif24pt7b)
+	X := 16
+	Y := 48
+	value := 123.234
+	text := fmt.Sprintf("%6.3f", value)
+	ili9341Display.MoveCursor(X, Y)
+	ili9341Display.SetColor(colors.BLACK)
+	ili9341Display.Write(text)
 }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
