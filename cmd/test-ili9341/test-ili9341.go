@@ -37,16 +37,16 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
-		drawLines,
-		drawArc,
-		draThickwArc,
-		drawCircle,
-		drawFillCircle,
-		drawThickCircle,
-		drawRectangle,
-		drawFillRectangle,
-		drawThickRectangle,
-		drawFonts,
+		// drawLines,
+		// drawArc,
+		// draThickwArc,
+		// drawCircle,
+		// drawFillCircle,
+		// drawThickCircle,
+		// drawRectangle,
+		// drawFillRectangle,
+		// drawThickRectangle,
+		drawFontsArea,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
@@ -227,24 +227,35 @@ func drawThickRectangle(ili9341Display display.RGBDisplay) {
 
 }
 
-func drawFonts(ili9341Display display.RGBDisplay) {
-	ili9341Display.MoveCursor(0, 0)
-	ili9341Display.SetColor(colors.BLUE)
-	ili9341Display.SetLineHeight(18)
-	ili9341Display.SetFont(fonts.FreeSansBoldOblique9pt7b)
-	ili9341Display.Write("Hello Mark!")
-
-	ili9341Display.MoveCursor(0, 30)
-	ili9341Display.SetColor(colors.RED)
-	ili9341Display.SetLineHeight(22)
-	ili9341Display.SetFont(fonts.FreeSansOblique18pt7b)
-	ili9341Display.Write("Hello Mark!")
-
-	ili9341Display.MoveCursor(0, 70)
+func drawFontsArea(ili9341Display display.RGBDisplay) {
 	ili9341Display.SetColor(colors.BLACK)
-	ili9341Display.SetLineHeight(22)
 	ili9341Display.SetFont(fonts.FreeSerif18pt7b)
-	ili9341Display.Write("Hello Mark!")
+
+	const LEN = 12
+	const FROM byte = 0x20 + 20
+	const TO byte = 0x7E
+	var c byte = FROM
+	yline := 32
+
+	for c <= TO {
+		s := make([]byte, 0)
+		for i := 0; i < LEN && c <= TO; i++ {
+			s = append(s, c)
+			c++
+		}
+		text := string(s)
+
+		x1, y1, x2, y2 := ili9341Display.GetTextArea(text)
+		xoffset := 8
+		ili9341Display.SetColor(colors.RED)
+		ili9341Display.Rectangle(float64(xoffset+x1), float64(yline+y1), float64(xoffset+x2), float64(yline+y2))
+		ili9341Display.SetColor(colors.BLUE)
+		ili9341Display.Line(0, float64(yline), 319, float64(yline))
+		ili9341Display.SetColor(colors.BLACK)
+		ili9341Display.MoveCursor(xoffset, yline)
+		ili9341Display.Write(string(s))
+		yline += 48
+	}
 
 }
 
@@ -263,7 +274,7 @@ func createSPIConnection(busNumber int, chipSelect int) spi.Conn {
 		chipSelect,
 	)
 	spiConn, err := spibus.Connect(
-		physic.Frequency(12)*physic.MegaHertz,
+		physic.Frequency(42)*physic.MegaHertz,
 		spi.Mode3,
 		8,
 	)

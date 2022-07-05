@@ -63,9 +63,8 @@ type RGBDisplay interface {
 	// Printing methods
 	MoveCursor(x, y int)
 	SetFont(font interface{}) error
-	SetLineHeight(height int)
-	WriteChar(char byte) error
 	Write(text string)
+	GetTextArea(text string) (x1, y1, x2, y2 int)
 }
 
 type rgbDevice struct {
@@ -78,7 +77,6 @@ type rgbDevice struct {
 	cursorX         int
 	cursorY         int
 	charAdvanceX    int
-	lineHeight      int
 	textLeftPadding int
 	textTopPadding  int
 }
@@ -93,7 +91,6 @@ func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
 		cursorX:         0,
 		cursorY:         0,
 		charAdvanceX:    0,
-		lineHeight:      0,
 		textLeftPadding: 0,
 		textTopPadding:  0,
 	}
