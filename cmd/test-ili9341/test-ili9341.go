@@ -37,16 +37,16 @@ func main() {
 	ili9341Display = display.NewRGBDisplay(ili9341Dev)
 	checkFatalErr(err)
 	tests := []func(display.RGBDisplay){
-		drawLines,
-		drawArc,
-		draThickwArc,
-		drawCircle,
-		drawFillCircle,
-		drawThickCircle,
-		drawRectangle,
-		drawFillRectangle,
-		drawThickRectangle,
-		drawFontsArea,
+		// drawLines,
+		// drawArc,
+		// draThickwArc,
+		// drawCircle,
+		// drawFillCircle,
+		// drawThickCircle,
+		// drawRectangle,
+		// drawFillRectangle,
+		// drawThickRectangle,
+		// drawFontsArea,
 		drawDigits,
 	}
 	for i := 0; i < len(tests); i++ {
@@ -262,15 +262,25 @@ func drawFontsArea(ili9341Display display.RGBDisplay) {
 	}
 }
 
+func drawGrids(ili9341Display display.RGBDisplay) {
+	for x := float64(0); x < 320; x += 32 {
+		ili9341Display.Line(x, 0, x, 239)
+	}
+	for y := float64(0); y < 240; y += 24 {
+		ili9341Display.Line(0, y, 319, y)
+	}
+}
+
 func drawDigits(ili9341Display display.RGBDisplay) {
 	ili9341Display.SetFont(fonts.FreeSerif24pt7b)
-	X := 16
-	Y := 48
-	value := 123.234
-	text := fmt.Sprintf("%6.3f", value)
+	X := 32
+	Y := 60
+	value := 123.23
+	text := fmt.Sprintf("%6.2f", value)
 	ili9341Display.MoveCursor(X, Y)
 	ili9341Display.SetColor(colors.BLACK)
 	ili9341Display.Write(text)
+	drawGrids(ili9341Display)
 }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
