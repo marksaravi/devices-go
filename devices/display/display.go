@@ -29,14 +29,14 @@ const (
 )
 
 type pixelDevice interface {
-	Update()
+	Update() int
 	Pixel(x, y int, color colors.Color)
 	ScreenWidth() int
 	ScreenHeight() int
 }
 
 type RGBDisplay interface {
-	Update()
+	Update() int
 	ScreenWidth() int
 	ScreenHeight() int
 
@@ -64,9 +64,8 @@ type RGBDisplay interface {
 	// Printing methods
 	MoveCursor(x, y int)
 	SetFont(font interface{}) error
-	SetLineHeight(height int)
-	WriteChar(char byte) error
 	Write(text string)
+	GetTextArea(text string) (x1, y1, x2, y2 int)
 }
 
 type rgbDevice struct {
@@ -79,7 +78,6 @@ type rgbDevice struct {
 	cursorX         int
 	cursorY         int
 	charAdvanceX    int
-	lineHeight      int
 	textLeftPadding int
 	textTopPadding  int
 }
@@ -94,14 +92,13 @@ func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
 		cursorX:         0,
 		cursorY:         0,
 		charAdvanceX:    0,
-		lineHeight:      0,
 		textLeftPadding: 0,
 		textTopPadding:  0,
 	}
 }
 
-func (d *rgbDevice) Update() {
-	d.pixeldev.Update()
+func (d *rgbDevice) Update() int {
+	return d.pixeldev.Update()
 }
 
 func (d *rgbDevice) ScreenWidth() int {

@@ -11,8 +11,8 @@ import (
 const (
 	lcd_width                int  = 320 //LCD width
 	lcd_height               int  = 240 //LCD height
-	segment_width            int  = 16
-	segment_height           int  = 12
+	segment_width            int  = 32
+	segment_height           int  = 24
 	num_x_seg                int  = lcd_width / segment_width
 	num_y_seg                int  = lcd_height / segment_height
 	num_of_segments          int  = num_x_seg * num_y_seg
@@ -37,7 +37,6 @@ type device struct {
 	pinRST           gpio.PinOut // Reset
 	segments         []byte
 	isSegmentChanged []bool
-	changedSegment   chan int
 }
 
 func NewILI9341(
@@ -51,20 +50,21 @@ func NewILI9341(
 		pinRST:           pinRST,
 		segments:         make([]byte, num_of_segments*bytes_per_segments),
 		isSegmentChanged: make([]bool, num_of_segments),
-		changedSegment:   make(chan int),
 	}
 	d.initLCD()
-	d.startDeviceMemoryWriter()
 	return d, nil
 }
 
-func (dev *device) Update() {
+func (dev *device) Update() int {
+	counter := 0
 	for seg := 0; seg < num_of_segments; seg++ {
 		if dev.isSegmentChanged[seg] {
-			dev.changedSegment <- seg
+			dev.refreshSegment(seg)
 			dev.isSegmentChanged[seg] = false
+			counter++
 		}
 	}
+	return counter
 }
 
 func (dev *device) Pixel(x, y int, color colors.Color) {
@@ -99,15 +99,6 @@ func (dev *device) refreshSegment(seg int) {
 	dev.setWindow(xseg*segment_width, yseg*segment_height, (xseg+1)*segment_width-1, (yseg+1)*segment_height-1)
 	dev.pinDC.Out(gpio.High)
 	dev.conn.Tx(dev.segments[start:start+bytes_per_segments], nil)
-}
-
-func (dev *device) startDeviceMemoryWriter() {
-	go func() {
-		for {
-			seg := <-dev.changedSegment
-			dev.refreshSegment(seg)
-		}
-	}()
 }
 
 func (dev *device) initLCD() {

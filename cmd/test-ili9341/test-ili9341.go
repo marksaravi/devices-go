@@ -46,20 +46,19 @@ func main() {
 		drawRectangle,
 		drawFillRectangle,
 		drawThickRectangle,
-		drawFonts,
+		drawFontsArea,
+		drawDigits,
 	}
 	for i := 0; i < len(tests); i++ {
 		ili9341Display.SetBackgroundColor(colors.WHITE)
 		ili9341Display.Clear()
-		tests[i](ili9341Display)
 		ili9341Display.Update()
-		time.Sleep(1000 * time.Millisecond)
+		ts := time.Now()
+		tests[i](ili9341Display)
+		numsegs := ili9341Display.Update()
+		fmt.Println("Update Duration(ms): ", time.Since(ts).Milliseconds(), ", Num of updated Segments: ", numsegs)
+		time.Sleep(time.Second / 10)
 	}
-
-	// testColors(ili9341Display)
-	// time.Sleep(1000 * time.Millisecond)
-	// testFonts(ili9341Display)
-	// testShapes(ili9341Display)
 }
 
 func drawLines(ili9341Display display.RGBDisplay) {
@@ -227,25 +226,56 @@ func drawThickRectangle(ili9341Display display.RGBDisplay) {
 
 }
 
-func drawFonts(ili9341Display display.RGBDisplay) {
-	ili9341Display.MoveCursor(0, 0)
-	ili9341Display.SetColor(colors.BLUE)
-	ili9341Display.SetLineHeight(18)
-	ili9341Display.SetFont(fonts.FreeSansBoldOblique9pt7b)
-	ili9341Display.Write("Hello Mark!")
-
-	ili9341Display.MoveCursor(0, 30)
-	ili9341Display.SetColor(colors.RED)
-	ili9341Display.SetLineHeight(22)
-	ili9341Display.SetFont(fonts.FreeSansOblique18pt7b)
-	ili9341Display.Write("Hello Mark!")
-
-	ili9341Display.MoveCursor(0, 70)
+func drawFontsArea(ili9341Display display.RGBDisplay) {
 	ili9341Display.SetColor(colors.BLACK)
-	ili9341Display.SetLineHeight(22)
 	ili9341Display.SetFont(fonts.FreeSerif18pt7b)
-	ili9341Display.Write("Hello Mark!")
 
+	const LEN = 12
+	const FROM byte = 0x20 + 20
+	const TO byte = 0x7E
+	var c byte = FROM
+	yline := 32
+
+	for c <= TO {
+		s := make([]byte, 0)
+		for i := 0; i < LEN && c <= TO; i++ {
+			s = append(s, c)
+			c++
+		}
+		text := string(s)
+
+		x1, y1, x2, y2 := ili9341Display.GetTextArea(text)
+		xoffset := 8
+		ili9341Display.SetColor(colors.RED)
+		ili9341Display.Rectangle(float64(xoffset+x1), float64(yline+y1), float64(xoffset+x2), float64(yline+y2))
+		ili9341Display.SetColor(colors.BLUE)
+		ili9341Display.Line(0, float64(yline), 319, float64(yline))
+		ili9341Display.SetColor(colors.BLACK)
+		ili9341Display.MoveCursor(xoffset, yline)
+		ili9341Display.Write(string(s))
+		yline += 48
+	}
+}
+
+func drawGrids(ili9341Display display.RGBDisplay) {
+	for x := float64(0); x < 320; x += 32 {
+		ili9341Display.Line(x, 0, x, 239)
+	}
+	for y := float64(0); y < 240; y += 24 {
+		ili9341Display.Line(0, y, 319, y)
+	}
+}
+
+func drawDigits(ili9341Display display.RGBDisplay) {
+	ili9341Display.SetFont(fonts.FreeSerif24pt7b)
+	X := 32
+	Y := 60
+	value := 123.23
+	text := fmt.Sprintf("%6.2f", value)
+	ili9341Display.MoveCursor(X, Y)
+	ili9341Display.SetColor(colors.BLACK)
+	ili9341Display.Write(text)
+	// drawGrids(ili9341Display)
 }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {
@@ -263,7 +293,7 @@ func createSPIConnection(busNumber int, chipSelect int) spi.Conn {
 		chipSelect,
 	)
 	spiConn, err := spibus.Connect(
-		physic.Frequency(12)*physic.MegaHertz,
+		physic.Frequency(64)*physic.MegaHertz,
 		spi.Mode3,
 		8,
 	)
