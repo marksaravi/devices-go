@@ -29,14 +29,14 @@ const (
 )
 
 type pixelDevice interface {
-	Update()
+	Update() int
 	Pixel(x, y int, color colors.Color)
 	ScreenWidth() int
 	ScreenHeight() int
 }
 
 type RGBDisplay interface {
-	Update()
+	Update() int
 	ScreenWidth() int
 	ScreenHeight() int
 
@@ -96,8 +96,8 @@ func NewRGBDisplay(pixeldev pixelDevice) RGBDisplay {
 	}
 }
 
-func (d *rgbDevice) Update() {
-	d.pixeldev.Update()
+func (d *rgbDevice) Update() int {
+	return d.pixeldev.Update()
 }
 
 func (d *rgbDevice) ScreenWidth() int {

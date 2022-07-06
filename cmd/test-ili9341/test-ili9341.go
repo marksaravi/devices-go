@@ -55,15 +55,10 @@ func main() {
 		ili9341Display.Update()
 		ts := time.Now()
 		tests[i](ili9341Display)
-		ili9341Display.Update()
-		fmt.Println(time.Since(ts).Milliseconds())
+		numsegs := ili9341Display.Update()
+		fmt.Println("Update Duration(ms): ", time.Since(ts).Milliseconds(), ", Num of updated Segments: ", numsegs)
 		time.Sleep(time.Second / 10)
 	}
-
-	// testColors(ili9341Display)
-	// time.Sleep(1000 * time.Millisecond)
-	// testFonts(ili9341Display)
-	// testShapes(ili9341Display)
 }
 
 func drawLines(ili9341Display display.RGBDisplay) {
@@ -280,7 +275,7 @@ func drawDigits(ili9341Display display.RGBDisplay) {
 	ili9341Display.MoveCursor(X, Y)
 	ili9341Display.SetColor(colors.BLACK)
 	ili9341Display.Write(text)
-	drawGrids(ili9341Display)
+	// drawGrids(ili9341Display)
 }
 
 func createGpioOutPin(gpioPinNum string) gpio.PinOut {

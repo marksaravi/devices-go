@@ -55,13 +55,16 @@ func NewILI9341(
 	return d, nil
 }
 
-func (dev *device) Update() {
+func (dev *device) Update() int {
+	counter := 0
 	for seg := 0; seg < num_of_segments; seg++ {
 		if dev.isSegmentChanged[seg] {
 			dev.refreshSegment(seg)
 			dev.isSegmentChanged[seg] = false
+			counter++
 		}
 	}
+	return counter
 }
 
 func (dev *device) Pixel(x, y int, color colors.Color) {
