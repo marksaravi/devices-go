@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/marksaravi/devices-go/colors"
-	"periph.io/x/conn/v3/gpio"
-	"periph.io/x/conn/v3/spi"
+	"github.com/marksaravi/devices-go/hardware/gpio"
+	"github.com/marksaravi/devices-go/hardware/spi"
 )
 
 const (
@@ -32,17 +32,17 @@ const (
 )
 
 type device struct {
-	conn             spi.Conn
-	pinDC            gpio.PinOut // WriteDataByte/writeCommand
-	pinRST           gpio.PinOut // Reset
+	conn             spi.SPI
+	pinDC            gpio.GPIOPinOut // WriteDataByte/writeCommand
+	pinRST           gpio.GPIOPinOut // Reset
 	segments         []byte
 	isSegmentChanged []bool
 }
 
 func NewILI9341(
-	spiConn spi.Conn,
-	pinDC gpio.PinOut,
-	pinRST gpio.PinOut,
+	spiConn spi.SPI,
+	pinDC gpio.GPIOPinOut,
+	pinRST gpio.GPIOPinOut,
 ) (*device, error) {
 	d := &device{
 		conn:             spiConn,
