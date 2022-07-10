@@ -12,3 +12,7 @@ const (
 type GPIOPinOut interface {
 	Out(Level)
 }
+
+type GPIOPinIn interface {
+	Read() Level
+}
