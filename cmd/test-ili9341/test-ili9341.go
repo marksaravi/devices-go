@@ -8,6 +8,7 @@ import (
 
 	"github.com/marksaravi/devices-go/colors"
 	"github.com/marksaravi/devices-go/devices/display"
+	devgpio "github.com/marksaravi/devices-go/hardware/gpio"
 	"github.com/marksaravi/devices-go/hardware/ili9341"
 	"github.com/marksaravi/devices-go/utils"
 	"github.com/marksaravi/fonts-go/fonts"
@@ -18,6 +19,14 @@ import (
 	"periph.io/x/host/v3"
 	"periph.io/x/host/v3/sysfs"
 )
+
+type gpioOut struct {
+	pin gpio.PinOut
+}
+
+func (p *gpioOut) Out(level devgpio.Level) {
+	p.pin.Out(gpio.Level(level))
+}
 
 func checkFatalErr(err error) {
 	if err != nil {
@@ -278,13 +287,15 @@ func drawDigits(ili9341Display display.RGBDisplay) {
 	// drawGrids(ili9341Display)
 }
 
-func createGpioOutPin(gpioPinNum string) gpio.PinOut {
+func createGpioOutPin(gpioPinNum string) devgpio.GPIOPinOut {
 	var pin gpio.PinOut = gpioreg.ByName(gpioPinNum)
 	if pin == nil {
 		checkFatalErr(fmt.Errorf("failed to create GPIO pin %s", gpioPinNum))
 	}
 	pin.Out(gpio.Low)
-	return pin
+	return &gpioOut{
+		pin: pin,
+	}
 }
 
 func createSPIConnection(busNumber int, chipSelect int) spi.Conn {
